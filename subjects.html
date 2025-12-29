@@ -9,243 +9,148 @@
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
     <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
     <script src="auth.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@700&family=Tajawal:wght@400;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
     <style>
-        body { 
-            background-color: #000; 
-            color: white; font-family: 'Tajawal', sans-serif; 
-            min-height: 100vh; padding-bottom: 80px;
-            overflow-x: hidden;
-        }
+        body { background-color: #000; color: white; font-family: 'Tajawal', sans-serif; min-height: 100vh; padding-bottom: 80px; overflow-x: hidden; }
+        .bg-space { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; background: radial-gradient(circle at 50% 0%, #1e1b4b, #000 70%); }
+        
+        /* الهيدر */
+        .header { background: rgba(255,255,255,0.03); backdrop-filter: blur(15px); padding: 20px; border-bottom: 1px solid rgba(255,255,255,0.1); border-radius: 0 0 30px 30px; margin-bottom: 25px; display: flex; justify-content: space-between; align-items: center; }
+        
+        .typing-box { font-size: 0.85rem; color: #fbbf24; height: 20px; margin-top: 4px; font-weight: bold; }
 
-        /* الخلفية الفضائية المتحركة */
-        .bg-space {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1;
-            background: radial-gradient(circle at 50% 0%, #2e1065, #000 70%);
-        }
-        .orb {
-            position: absolute; width: 300px; height: 300px;
-            background: #6366f1; filter: blur(100px); opacity: 0.2;
-            animation: moveOrb 10s infinite alternate;
-        }
-        @keyframes moveOrb { from { transform: translate(-20%, -20%); } to { transform: translate(20%, 20%); } }
-
-        /* الهيدر البروفايل */
-        .header {
-            background: rgba(255,255,255,0.03); backdrop-filter: blur(20px);
-            padding: 20px; border-bottom: 1px solid rgba(255,255,255,0.05);
-            display: flex; justify-content: space-between; align-items: center;
-            border-radius: 0 0 30px 30px; margin-bottom: 30px;
-            box-shadow: 0 10px 40px rgba(0,0,0,0.5);
-        }
-
-        /* تأثير الكتابة */
-        .typing-box {
-            font-size: 0.8rem; font-weight: bold; color: #fbbf24;
-            display: flex; align-items: center; height: 20px; margin-top: 2px;
-        }
-        .cursor {
-            display: inline-block; width: 2px; height: 14px; 
-            background: #fbbf24; margin-right: 3px;
-            animation: blink 0.8s infinite;
-        }
-        @keyframes blink { 50% { opacity: 0; } }
-
-        /* كروت المواد الجديد (Neon Glass) */
+        /* كروت المواد بالصور الجديدة */
         .subject-card {
-            background: rgba(30, 41, 59, 0.3); 
-            border: 1px solid rgba(255, 255, 255, 0.05);
-            border-radius: 24px; padding: 20px;
-            position: relative; overflow: hidden;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            background: linear-gradient(145deg, rgba(30, 41, 59, 0.4), rgba(15, 23, 42, 0.6));
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 28px; padding: 15px;
+            text-align: center; transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            cursor: pointer; position: relative; overflow: hidden;
             display: flex; flex-direction: column; align-items: center; justify-content: center;
-            text-align: center; height: 180px;
+            height: 200px;
         }
 
-        .subject-card::before {
-            content: ''; position: absolute; inset: 0;
-            background: linear-gradient(45deg, transparent, rgba(99, 102, 241, 0.1), transparent);
-            opacity: 0; transition: 0.3s;
-        }
         .subject-card:hover {
-            transform: translateY(-5px);
-            border-color: #8b5cf6;
-            box-shadow: 0 10px 30px -10px rgba(139, 92, 246, 0.3);
+            transform: translateY(-10px);
+            border-color: #6366f1;
+            box-shadow: 0 20px 40px rgba(99, 102, 241, 0.2);
         }
-        .subject-card:hover::before { opacity: 1; }
 
-        .s-icon {
-            width: 70px; height: 70px; margin-bottom: 15px;
-            filter: drop-shadow(0 5px 15px rgba(0,0,0,0.5));
-            transition: 0.3s;
+        .s-img-container {
+            width: 90px; height: 90px; margin-bottom: 12px;
+            display: flex; align-items: center; justify-content: center;
         }
-        .subject-card:hover .s-icon { transform: scale(1.1) rotate(5deg); }
 
-        .s-title { font-size: 1.2rem; font-weight: 800; margin-bottom: 5px; color: white; }
-        .s-info { font-size: 0.8rem; color: #94a3b8; background: rgba(0,0,0,0.3); padding: 4px 12px; border-radius: 20px; }
+        .s-img {
+            width: 100%; height: 100%; object-fit: contain;
+            filter: drop-shadow(0 10px 15px rgba(0,0,0,0.5));
+            transition: 0.4s;
+        }
 
-        .level-bar {
-            width: 100%; height: 6px; background: rgba(255,255,255,0.1);
-            border-radius: 10px; margin-top: 8px; overflow: hidden;
-        }
-        .level-fill {
-            height: 100%; background: linear-gradient(90deg, #6366f1, #d946ef);
-            width: 75%; border-radius: 10px;
-        }
+        .subject-card:hover .s-img { transform: scale(1.15) rotate(5deg); }
+
+        .s-title { font-size: 1.25rem; font-weight: 800; color: #f8fafc; margin-bottom: 4px; }
+        .s-count { font-size: 0.75rem; color: #94a3b8; background: rgba(255,255,255,0.05); padding: 2px 10px; border-radius: 12px; }
     </style>
 </head>
 <body>
 
-    <div class="bg-space"><div class="orb"></div></div>
+    <div class="bg-space"></div>
 
     <div id="app">
         <header class="header">
-            <a href="timer.html" class="flex items-center gap-4 group">
-                <div class="relative">
-                    <img src="https://cdn-icons-png.flaticon.com/512/4140/4140048.png" class="w-14 h-14 rounded-full border-2 border-indigo-500 bg-indigo-900/20 p-1">
-                    <div class="absolute bottom-0 right-0 w-4 h-4 bg-green-500 border-2 border-black rounded-full"></div>
-                </div>
+            <div class="flex items-center gap-3">
+                <img src="https://cdn-icons-png.flaticon.com/512/4140/4140048.png" class="w-12 h-12 rounded-full border border-indigo-500">
                 <div>
-                    <h2 class="font-bold text-lg leading-tight group-hover:text-indigo-400 transition" id="sName">جاري التحميل...</h2>
-                    
-                    <div class="typing-box">
-                        <span class="typing-text"></span><span class="cursor"></span>
-                    </div>
-
-                    <div class="level-bar w-24"><div class="level-fill"></div></div>
+                    <h2 class="font-bold text-lg" id="sName">جاري التحميل...</h2>
+                    <div class="typing-box"><span class="typing-text"></span></div>
                 </div>
-            </a>
-            <button onclick="logout()" class="w-10 h-10 rounded-full bg-white/5 hover:bg-red-500/20 text-gray-400 hover:text-red-500 transition flex items-center justify-center">
-                <i class="fas fa-power-off"></i>
-            </button>
+            </div>
+            <button onclick="logout()" class="text-gray-500 hover:text-red-500 transition"><i class="fas fa-sign-out-alt text-xl"></i></button>
         </header>
 
-        <div class="px-6">
-            <div class="flex items-center justify-between mb-6">
-                <h3 class="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-white to-gray-400">مكتبتك</h3>
-                <span class="text-xs bg-indigo-500/20 text-indigo-300 px-3 py-1 rounded-full border border-indigo-500/30">
-                    {{ subjects.length }} مواد
-                </span>
+        <div class="px-5">
+            <h3 class="text-xl font-bold mb-6 text-indigo-200">اختر المادة الدراسية</h3>
+            
+            <div v-if="loading" class="grid grid-cols-2 gap-4">
+                <div v-for="i in 4" class="subject-card animate-pulse"></div>
             </div>
 
-            <div v-if="loading" class="grid grid-cols-2 gap-4">
-                <div class="subject-card animate-pulse"><div class="w-12 h-12 bg-gray-700 rounded-full mb-3"></div><div class="h-4 w-20 bg-gray-700 rounded"></div></div>
-                <div class="subject-card animate-pulse"><div class="w-12 h-12 bg-gray-700 rounded-full mb-3"></div><div class="h-4 w-20 bg-gray-700 rounded"></div></div>
-            </div>
-            
             <div v-else class="grid grid-cols-2 gap-4">
-                <div v-for="s in subjects" :key="s.id" @click="go(s)" class="subject-card cursor-pointer">
-                    <img :src="getImg(s.name)" class="s-icon">
+                <div v-for="s in subjects" :key="s.id" @click="go(s)" class="subject-card">
+                    <div class="s-img-container">
+                        <img :src="getImg(s.name)" class="s-img" onerror="this.src='https://cdn3d.iconscout.com/3d/premium/thumb/book-5110435-4256920.png'">
+                    </div>
                     <h3 class="s-title">{{ s.name }}</h3>
-                    <span class="s-info">{{ s.teachers?.length || 0 }} مدرسين</span>
+                    <span class="s-count">{{ s.teachers?.length || 0 }} مدرسين</span>
                 </div>
             </div>
         </div>
     </div>
 
     <script>
-        // ✨ كود الكتابة المتحركة ✨
-        const phrases = [
-            "✨ حلمك يستاهل تتعب عشانه!",
-            "💪 عافر.. هتوصل أكيد",
-            "🚀 أنت قدها وقدود يا بطل",
-            "🎓 دكتور المستقبل بإذن الله",
-            "💡 اصنع مستقبلك بنفسك",
-            "🦁 خليك أسد في المذاكرة"
-        ];
-        
-        let phraseIdx = 0;
-        let charIdx = 0;
-        let isDeleting = false;
+        // روابط الصور الـ 3D الحقيقية والاحترافية
+        const IMAGES_DB = {
+            "فيزيا": "https://cdn3d.iconscout.com/3d/premium/thumb/physics-7265691-5840333.png",
+            "كيميا": "https://cdn3d.iconscout.com/3d/premium/thumb/chemistry-atoms-5691557-4740112.png",
+            "أحيا": "https://cdn3d.iconscout.com/3d/premium/thumb/dna-5256241-4385108.png",
+            "عرب": "https://cdn3d.iconscout.com/3d/premium/thumb/ramadan-quran-5136006-4286786.png",
+            "نجليز": "https://cdn3d.iconscout.com/3d/premium/thumb/english-book-10041135-8135359.png",
+            "رياض": "https://cdn3d.iconscout.com/3d/premium/thumb/mathematics-9173295-7489437.png",
+            "تاريخ": "https://cdn3d.iconscout.com/3d/premium/thumb/pharaoh-6450376-5310636.png",
+            "جغرافي": "https://cdn3d.iconscout.com/3d/premium/thumb/earth-5134701-4282715.png",
+            "فرنس": "https://cdn3d.iconscout.com/3d/premium/thumb/eiffel-tower-5374026-4491752.png",
+            "فلسف": "https://cdn3d.iconscout.com/3d/premium/thumb/thought-5285141-4414349.png",
+            "نفس": "https://cdn3d.iconscout.com/3d/premium/thumb/psychology-9860472-8012170.png",
+            "ألماني": "https://cdn3d.iconscout.com/3d/premium/thumb/german-flag-9920119-8106880.png",
+            "default": "https://cdn3d.iconscout.com/3d/premium/thumb/education-4940505-4116480.png"
+        };
 
-        function typeEffect() {
-            const currentPhrase = phrases[phraseIdx];
-            const textElement = document.querySelector(".typing-text");
-            
-            if (!textElement) return;
+        const phrases = ["🚀 عافر حلمك يستاهل", "✨ أنت قدها يا بطل", "🎓 دكتور المستقبل", "💪 كمل مجهودك هيوصلك"];
+        let pIdx = 0, cIdx = 0, isDel = false;
 
-            if (isDeleting) {
-                textElement.textContent = currentPhrase.substring(0, charIdx--);
-                if (charIdx < 0) {
-                    isDeleting = false;
-                    phraseIdx = (phraseIdx + 1) % phrases.length;
-                    setTimeout(typeEffect, 500); // استراحة قبل الكتابة الجديدة
-                    return;
-                }
-            } else {
-                textElement.textContent = currentPhrase.substring(0, charIdx++);
-                if (charIdx > currentPhrase.length) {
-                    isDeleting = true;
-                    setTimeout(typeEffect, 2000); // استراحة والقراءة كاملة
-                    return;
-                }
-            }
-            setTimeout(typeEffect, isDeleting ? 50 : 100);
+        function type() {
+            const txt = phrases[pIdx];
+            const el = document.querySelector(".typing-text");
+            if(!el) return;
+            el.textContent = isDel ? txt.substring(0, cIdx--) : txt.substring(0, cIdx++);
+            if(!isDel && cIdx > txt.length) { isDel = true; setTimeout(type, 2000); }
+            else if(isDel && cIdx < 0) { isDel = false; pIdx = (pIdx+1)%phrases.length; setTimeout(type, 500); }
+            else setTimeout(type, isDel ? 50 : 100);
         }
 
-        // تشغيل التأثير عند التحميل
-        document.addEventListener('DOMContentLoaded', typeEffect);
-
         const { createApp, ref, onMounted } = Vue;
-
-        const IMGS = {
-            "عرب": "https://cdn-icons-png.flaticon.com/512/330/330459.png",
-            "لغة عربية": "https://cdn-icons-png.flaticon.com/512/10605/10605973.png",
-            "نجليز": "https://cdn-icons-png.flaticon.com/512/3269/3269817.png",
-            "English": "https://cdn-icons-png.flaticon.com/512/3269/3269817.png",
-            "فرنس": "https://cdn-icons-png.flaticon.com/512/330/330490.png",
-            "فيزيا": "https://cdn-icons-png.flaticon.com/512/3081/3081530.png",
-            "كيميا": "https://cdn-icons-png.flaticon.com/512/4341/4341112.png",
-            "أحيا": "https://cdn-icons-png.flaticon.com/512/2997/2997300.png",
-            "بيولوج": "https://cdn-icons-png.flaticon.com/512/2997/2997300.png",
-            "رياض": "https://cdn-icons-png.flaticon.com/512/4151/4151897.png",
-            "جبر": "https://cdn-icons-png.flaticon.com/512/4151/4151897.png",
-            "تاريخ": "https://cdn-icons-png.flaticon.com/512/2234/2234665.png",
-            "جغرافي": "https://cdn-icons-png.flaticon.com/512/854/854878.png",
-            "فلسف": "https://cdn-icons-png.flaticon.com/512/3169/3169230.png",
-            "نفس": "https://cdn-icons-png.flaticon.com/512/3169/3169230.png",
-            "default": "https://cdn-icons-png.flaticon.com/512/3209/3209990.png"
-        };
-
-        const URLS = {
-            'علمي علوم': "https://plus-teal.vercel.app/organized_output.json",
-            'أدبي': "https://plus-teal.vercel.app/organized_output-a.json", 
-            'علمي رياضة': "https://platform-sigma-seven.vercel.app/organized_output-e.json",
-            'أزهر': "https://plus-teal.vercel.app/organized_output.json"
-        };
-
         createApp({
             setup() {
                 const subjects = ref([]);
                 const loading = ref(true);
                 const yid = ref(null);
-                
+
                 const getImg = (n) => {
-                    for(let k in IMGS) if(n.includes(k)) return IMGS[k];
-                    return IMGS['default'];
+                    for(let key in IMAGES_DB) if(n.includes(key)) return IMAGES_DB[key];
+                    return IMAGES_DB['default'];
                 };
 
-                const go = (s) => window.location.href = `chapters.html?yid=${yid.value}&sid=${s.id}`;
-
                 onMounted(async () => {
+                    type();
                     const code = checkAuth();
                     const db = firebase.database();
-                    try {
-                        const snap = await db.ref('approvedStudents/'+code).once('value');
-                        const user = snap.val();
-                        document.getElementById('sName').innerText = user.studentName;
+                    const userSnap = await db.ref('approvedStudents/'+code).once('value');
+                    const user = userSnap.val();
+                    document.getElementById('sName').innerText = user.studentName;
 
-                        const res = await fetch(URLS[user.section] || URLS['علمي علوم']);
-                        const data = await res.json();
-                        let year = data.find(y => y.id == 3) || data[0];
-                        yid.value = year.id;
-                        subjects.value = year.subjects || [];
-                    } catch(e) { console.error(e); } 
-                    finally { loading.value = false; }
+                    const URLS = { 'علمي علوم': "https://plus-teal.vercel.app/organized_output.json", 'أدبي': "https://plus-teal.vercel.app/organized_output-a.json", 'علمي رياضة': "https://platform-sigma-seven.vercel.app/organized_output-e.json" };
+                    const res = await fetch(URLS[user.section] || URLS['علمي علوم']);
+                    const data = await res.json();
+                    let year = data.find(y => y.id == 3) || data[0];
+                    yid.value = year.id;
+                    subjects.value = year.subjects;
+                    loading.value = false;
                 });
-                return { subjects, loading, getImg, go };
+
+                return { subjects, loading, getImg, go: (s) => window.location.href = `chapters.html?yid=${yid.value}&sid=${s.id}` };
             }
         }).mount('#app');
     </script>
