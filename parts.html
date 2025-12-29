@@ -3,80 +3,117 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>الفيديوهات | ALPHA</title>
+    <title>الفيديوهات | FULL MARK</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
     <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
     <script src="auth.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        body { background: #000; color: white; font-family: 'Tajawal', sans-serif; padding-bottom: 50px; }
-        .bg-glow { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; background: radial-gradient(circle at 50% 10%, #1e1b4b, #000 60%); }
+        body { background: #020617; color: white; font-family: 'Tajawal', sans-serif; padding-bottom: 50px; }
+        .bg-glow { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; background: radial-gradient(circle at 50% -10%, #1e1b4b, #020617 80%); }
         
         .header-sticky {
             position: sticky; top: 0; z-index: 50;
-            background: rgba(0,0,0,0.8); backdrop-filter: blur(20px);
-            padding: 15px 20px; border-bottom: 1px solid rgba(255,255,255,0.1);
-            margin-bottom: 20px;
+            background: rgba(15, 23, 42, 0.8); backdrop-filter: blur(25px);
+            padding: 20px; border-bottom: 1px solid rgba(99, 102, 241, 0.2);
+            margin-bottom: 25px;
         }
 
+        /* كارت الفيديو المطور */
         .video-item {
-            background: rgba(30, 41, 59, 0.4); 
-            padding: 15px; border-radius: 16px; margin-bottom: 10px;
+            background: rgba(30, 41, 59, 0.3); 
+            padding: 18px; border-radius: 22px; margin-bottom: 15px;
             display: flex; align-items: center; gap: 15px; cursor: pointer;
-            transition: 0.3s; border-width: 1px; border-style: solid;
+            transition: 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); 
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        .video-item:hover {
+            transform: scale(1.02);
+            background: rgba(30, 41, 59, 0.6);
+            border-color: #6366f1;
+            box-shadow: 0 15px 30px -10px rgba(99, 102, 241, 0.2);
         }
         
-        /* الأيقونة هتاخد لون الفئة بتاعها */
         .play-icon-box {
-            width: 45px; height: 45px; border-radius: 12px;
-            display: flex; align-items: center; justify-content: center; font-size: 1.2rem;
+            width: 50px; height: 50px; border-radius: 16px;
+            display: flex; align-items: center; justify-content: center; 
+            font-size: 1rem; transition: 0.3s;
+        }
+        .video-item:hover .play-icon-box {
+            transform: rotate(10deg);
         }
 
-        /* فئات الألوان المختلفة */
-        .color-group-1 { border-color: rgba(99, 102, 241, 0.3); } /* أزرق */
-        .color-group-1 .play-icon-box { background: rgba(99, 102, 241, 0.2); color: #818cf8; }
+        /* فئات الألوان الخاصة بـ FULL MARK */
+        .color-group-1 { border-right: 5px solid #6366f1; } 
+        .color-group-1 .play-icon-box { background: rgba(99, 102, 241, 0.15); color: #818cf8; }
 
-        .color-group-2 { border-color: rgba(236, 72, 153, 0.3); } /* بينك */
-        .color-group-2 .play-icon-box { background: rgba(236, 72, 153, 0.2); color: #f472b6; }
+        .color-group-2 { border-right: 5px solid #d946ef; } 
+        .color-group-2 .play-icon-box { background: rgba(217, 70, 239, 0.15); color: #f472b6; }
 
-        .color-group-3 { border-color: rgba(34, 197, 94, 0.3); } /* أخضر */
-        .color-group-3 .play-icon-box { background: rgba(34, 197, 94, 0.2); color: #4ade80; }
+        .color-group-3 { border-right: 5px solid #10b981; } 
+        .color-group-3 .play-icon-box { background: rgba(16, 185, 129, 0.15); color: #34d399; }
 
-        .color-group-4 { border-color: rgba(251, 191, 36, 0.3); } /* ذهبي */
-        .color-group-4 .play-icon-box { background: rgba(251, 191, 36, 0.2); color: #fbbf24; }
+        .branding-footer {
+            text-align: center; margin-top: 50px; opacity: 0.4; font-size: 0.75rem; 
+            letter-spacing: 4px; font-weight: 900; color: #6366f1;
+        }
     </style>
 </head>
 <body>
     <div class="bg-glow"></div>
 
     <div id="app">
-        <div class="header-sticky flex items-center gap-4">
-            <button onclick="history.back()" class="w-10 h-10 bg-white/10 rounded-full text-white flex items-center justify-center">➜</button>
-            <div style="max-width: 80%;">
-                <h1 class="text-lg font-bold text-indigo-300 truncate">{{ title }}</h1>
-                <p class="text-xs text-gray-400">محتوى المحاضرة المنفصل</p>
+        <div class="header-sticky flex items-center justify-between">
+            <div class="flex items-center gap-4 max-w-[80%]">
+                <button onclick="history.back()" class="w-12 h-12 bg-white/5 border border-white/10 rounded-2xl text-white flex items-center justify-center hover:bg-white/10 transition-all">
+                    <i class="fas fa-arrow-right"></i>
+                </button>
+                <div class="truncate">
+                    <h1 class="text-xl font-black text-indigo-100 truncate">{{ title }}</h1>
+                    <p class="text-[10px] text-indigo-400 font-bold uppercase tracking-widest mt-0.5">LECTURE PARTS • أجزاء المحاضرة</p>
+                </div>
+            </div>
+            <div class="hidden md:block text-xs font-black text-white/20 uppercase tracking-tighter">
+                Full Mark
             </div>
         </div>
 
-        <div class="px-4">
+        <div class="px-5 max-w-3xl mx-auto">
             <div v-if="videos.length > 0">
                 <div v-for="(v, i) in videos" @click="play(v)" 
-                     :class="['video-item', getColorClass()]">
-                    <div class="text-gray-500 font-bold text-sm w-6">{{ i + 1 }}</div>
+                     :class="['video-item', 'color-group-' + ((i % 3) + 1)]">
                     
-                    <div class="flex-1">
-                        <div class="vid-title">{{ v.video_name || v.title || v.name }}</div>
-                        <div class="vid-meta text-xs opacity-50">فيديو تعليمي</div>
+                    <div class="flex flex-col items-center justify-center bg-white/5 w-10 h-10 rounded-xl border border-white/5">
+                        <span class="text-indigo-300 font-black text-xs leading-none">{{ i + 1 }}</span>
+                        <span class="text-[8px] opacity-40 uppercase font-bold mt-1">Part</span>
                     </div>
                     
-                    <div class="play-icon-box"><i class="fas fa-play"></i></div>
+                    <div class="flex-1">
+                        <div class="text-sm md:text-base font-bold text-white group-hover:text-indigo-400 transition-colors">
+                            {{ v.video_name || v.title || v.name }}
+                        </div>
+                        <div class="flex items-center gap-2 mt-1">
+                            <span class="text-[9px] bg-indigo-500/10 text-indigo-400 px-2 py-0.5 rounded-full font-bold">VIDEO</span>
+                            <span class="text-[10px] text-gray-500">جودة عالية HD</span>
+                        </div>
+                    </div>
+                    
+                    <div class="play-icon-box shadow-lg"><i class="fas fa-play"></i></div>
                 </div>
             </div>
-            <div v-else class="text-center mt-20 text-gray-500">
-                <p>لا يوجد فيديوهات متاحة</p>
+
+            <div v-else class="text-center mt-32">
+                <div class="w-20 h-20 bg-white/5 rounded-full flex items-center justify-center mx-auto mb-6">
+                    <i class="fas fa-film text-3xl opacity-20 text-indigo-500"></i>
+                </div>
+                <p class="text-gray-500 font-bold">عفواً، لا توجد فيديوهات في هذا القسم حالياً.</p>
+            </div>
+
+            <div class="branding-footer">
+                DEVELOPED BY ELGIZAWY
             </div>
         </div>
     </div>
@@ -89,13 +126,6 @@
                 const videos = ref([]);
                 const title = ref('');
 
-                // دالة بتدي لون ثابت للمحاضرة الحالية
-                const getColorClass = () => {
-                    // بنستخدم رقم عشوائي ثابت لكل مرة تفتح فيها الصفحة عشان تميز المحاضرة دي
-                    const colorNum = (Math.floor(Math.random() * 4) + 1);
-                    return `color-group-${colorNum}`;
-                };
-
                 const play = (v) => {
                     localStorage.setItem('currentVideo', JSON.stringify(v));
                     window.location.href = 'player.html';
@@ -104,12 +134,12 @@
                 onMounted(() => {
                     checkAuth();
                     const vids = JSON.parse(localStorage.getItem('selectedLectureVids') || '[]');
-                    const lectureTitle = localStorage.getItem('selectedLectureTitle') || 'المحتوى';
+                    const lectureTitle = localStorage.getItem('selectedLectureTitle') || 'المحتوى التعليمي';
                     videos.value = vids;
                     title.value = lectureTitle;
                 });
 
-                return { videos, title, play, getColorClass };
+                return { videos, title, play };
             }
         }).mount('#app');
     </script>
