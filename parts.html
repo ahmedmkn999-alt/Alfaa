@@ -23,23 +23,30 @@
         }
 
         .video-item {
-            background: rgba(30, 41, 59, 0.4); border: 1px solid rgba(255,255,255,0.05);
+            background: rgba(30, 41, 59, 0.4); 
             padding: 15px; border-radius: 16px; margin-bottom: 10px;
             display: flex; align-items: center; gap: 15px; cursor: pointer;
-            transition: 0.2s;
+            transition: 0.3s; border-width: 1px; border-style: solid;
         }
-        .video-item:active { background: #312e81; border-color: #6366f1; }
         
+        /* الأيقونة هتاخد لون الفئة بتاعها */
         .play-icon-box {
             width: 45px; height: 45px; border-radius: 12px;
-            background: rgba(99, 102, 241, 0.15); color: #818cf8;
             display: flex; align-items: center; justify-content: center; font-size: 1.2rem;
-            border: 1px solid rgba(99, 102, 241, 0.2);
         }
-        .video-item:active .play-icon-box { background: #6366f1; color: white; }
 
-        .vid-title { font-weight: bold; font-size: 1rem; color: #e2e8f0; flex: 1; }
-        .vid-meta { font-size: 0.75rem; color: #64748b; margin-top: 2px; }
+        /* فئات الألوان المختلفة */
+        .color-group-1 { border-color: rgba(99, 102, 241, 0.3); } /* أزرق */
+        .color-group-1 .play-icon-box { background: rgba(99, 102, 241, 0.2); color: #818cf8; }
+
+        .color-group-2 { border-color: rgba(236, 72, 153, 0.3); } /* بينك */
+        .color-group-2 .play-icon-box { background: rgba(236, 72, 153, 0.2); color: #f472b6; }
+
+        .color-group-3 { border-color: rgba(34, 197, 94, 0.3); } /* أخضر */
+        .color-group-3 .play-icon-box { background: rgba(34, 197, 94, 0.2); color: #4ade80; }
+
+        .color-group-4 { border-color: rgba(251, 191, 36, 0.3); } /* ذهبي */
+        .color-group-4 .play-icon-box { background: rgba(251, 191, 36, 0.2); color: #fbbf24; }
     </style>
 </head>
 <body>
@@ -47,30 +54,29 @@
 
     <div id="app">
         <div class="header-sticky flex items-center gap-4">
-            <button onclick="history.back()" class="w-10 h-10 bg-white/10 rounded-full text-white flex items-center justify-center hover:bg-white/20">➜</button>
+            <button onclick="history.back()" class="w-10 h-10 bg-white/10 rounded-full text-white flex items-center justify-center">➜</button>
             <div style="max-width: 80%;">
                 <h1 class="text-lg font-bold text-indigo-300 truncate">{{ title }}</h1>
-                <p class="text-xs text-gray-400">قائمة فيديوهات المحاضرة</p>
+                <p class="text-xs text-gray-400">محتوى المحاضرة المنفصل</p>
             </div>
         </div>
 
         <div class="px-4">
             <div v-if="videos.length > 0">
-                <div v-for="(v, i) in videos" @click="play(v)" class="video-item group">
+                <div v-for="(v, i) in videos" @click="play(v)" 
+                     :class="['video-item', getColorClass()]">
                     <div class="text-gray-500 font-bold text-sm w-6">{{ i + 1 }}</div>
                     
                     <div class="flex-1">
-                        <div class="vid-title group-hover:text-white">{{ v.video_name || v.title || v.name }}</div>
-                        <div class="vid-meta"><i class="fas fa-play-circle text-xs"></i> فيديو مسجل</div>
+                        <div class="vid-title">{{ v.video_name || v.title || v.name }}</div>
+                        <div class="vid-meta text-xs opacity-50">فيديو تعليمي</div>
                     </div>
                     
                     <div class="play-icon-box"><i class="fas fa-play"></i></div>
                 </div>
             </div>
-            
             <div v-else class="text-center mt-20 text-gray-500">
-                <i class="fas fa-video-slash text-4xl mb-4"></i>
-                <p>لا يوجد فيديوهات متاحة لهذه المحاضرة حالياً</p>
+                <p>لا يوجد فيديوهات متاحة</p>
             </div>
         </div>
     </div>
@@ -81,31 +87,29 @@
         createApp({
             setup() {
                 const videos = ref([]);
-                const title = ref('جاري التحميل...');
+                const title = ref('');
 
-                // دالة تشغيل الفيديو
+                // دالة بتدي لون ثابت للمحاضرة الحالية
+                const getColorClass = () => {
+                    // بنستخدم رقم عشوائي ثابت لكل مرة تفتح فيها الصفحة عشان تميز المحاضرة دي
+                    const colorNum = (Math.floor(Math.random() * 4) + 1);
+                    return `color-group-${colorNum}`;
+                };
+
                 const play = (v) => {
                     localStorage.setItem('currentVideo', JSON.stringify(v));
                     window.location.href = 'player.html';
                 };
 
                 onMounted(() => {
-                    // التحقق من تسجيل الدخول
                     checkAuth();
-
-                    // جلب البيانات التي تم تخزينها من صفحة lectures.html
-                    const storedVids = localStorage.getItem('selectedLectureVids');
-                    const storedTitle = localStorage.getItem('selectedLectureTitle');
-
-                    if (storedVids) {
-                        videos.value = JSON.parse(storedVids);
-                        title.value = storedTitle || 'المحتوى التعليمي';
-                    } else {
-                        title.value = 'خطأ في جلب البيانات';
-                    }
+                    const vids = JSON.parse(localStorage.getItem('selectedLectureVids') || '[]');
+                    const lectureTitle = localStorage.getItem('selectedLectureTitle') || 'المحتوى';
+                    videos.value = vids;
+                    title.value = lectureTitle;
                 });
 
-                return { videos, title, play };
+                return { videos, title, play, getColorClass };
             }
         }).mount('#app');
     </script>
