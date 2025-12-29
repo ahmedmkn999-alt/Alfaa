@@ -3,116 +3,132 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>ALPHA | تسجيل الدخول</title>
+    <title>FULL MARK | تسجيل الدخول</title>
     
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
-    <script src="auth.js"></script> <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;700;900&family=Tajawal:wght@400;700&display=swap" rel="stylesheet">
+    <script src="auth.js"></script> 
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;700;900&family=Tajawal:wght@400;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
     <style>
         body {
-            background-color: #000000;
+            background-color: #020617;
             background-image: 
                 radial-gradient(at 0% 0%, hsla(253,16%,7%,1) 0, transparent 50%), 
-                radial-gradient(at 50% 0%, hsla(225,39%,30%,1) 0, transparent 50%), 
-                radial-gradient(at 100% 0%, hsla(339,49%,30%,1) 0, transparent 50%);
+                radial-gradient(at 50% 0%, hsla(230,50%,15%,1) 0, transparent 50%), 
+                radial-gradient(at 100% 0%, hsla(280,50%,15%,1) 0, transparent 50%);
             color: white; font-family: 'Tajawal', sans-serif;
             height: 100vh; display: flex; align-items: center; justify-content: center;
             overflow: hidden; margin: 0;
         }
 
-        /* الكارت الزجاجي */
+        /* الكارت الزجاجي المحسن */
         .glass-card {
-            background: rgba(255, 255, 255, 0.03);
-            backdrop-filter: blur(16px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 24px;
-            padding: 40px 30px;
-            width: 90%; max-width: 380px;
+            background: rgba(15, 23, 42, 0.6);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(99, 102, 241, 0.2);
+            border-radius: 32px;
+            padding: 45px 35px;
+            width: 90%; max-width: 400px;
             text-align: center;
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
-            animation: slideUp 0.8s ease-out;
+            box-shadow: 0 30px 60px -12px rgba(0, 0, 0, 0.6);
+            animation: slideUp 0.8s cubic-bezier(0.16, 1, 0.3, 1);
         }
 
         @keyframes slideUp {
-            from { opacity: 0; transform: translateY(30px); }
+            from { opacity: 0; transform: translateY(40px); }
             to { opacity: 1; transform: translateY(0); }
         }
 
         .logo-text {
             font-family: 'Outfit', sans-serif;
-            font-size: 3rem; font-weight: 900;
-            background: linear-gradient(to right, #6366f1, #ec4899);
+            font-size: 3.2rem; font-weight: 900;
+            background: linear-gradient(135deg, #fff 30%, #6366f1 70%, #d946ef 100%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             margin-bottom: 5px; letter-spacing: -1px;
+            filter: drop-shadow(0 0 15px rgba(99, 102, 241, 0.3));
         }
 
         .input-group {
-            position: relative; margin-bottom: 20px;
+            position: relative; margin-bottom: 25px;
         }
         .input-field {
-            width: 100%; padding: 16px 20px 16px 50px; /* مسافة للأيقونة */
-            background: rgba(0, 0, 0, 0.3);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 12px;
-            color: white; font-size: 1.1rem; outline: none; transition: 0.3s;
+            width: 100%; padding: 18px 20px 18px 55px;
+            background: rgba(2, 6, 23, 0.6);
+            border: 1px solid rgba(99, 102, 241, 0.2);
+            border-radius: 16px;
+            color: white; font-size: 1.1rem; outline: none; transition: 0.4s;
+            text-align: center; font-family: 'Outfit', sans-serif;
         }
         .input-field:focus {
             border-color: #6366f1;
-            box-shadow: 0 0 15px rgba(99, 102, 241, 0.3);
+            box-shadow: 0 0 20px rgba(99, 102, 241, 0.25);
+            background: rgba(2, 6, 23, 0.8);
         }
         .input-icon {
-            position: absolute; right: 15px; top: 50%; transform: translateY(-50%);
-            color: #64748b; font-size: 1.2rem;
+            position: absolute; right: 20px; top: 50%; transform: translateY(-50%);
+            color: #6366f1; font-size: 1.3rem; opacity: 0.8;
         }
 
         .btn-primary {
-            width: 100%; padding: 16px;
+            width: 100%; padding: 18px;
             background: linear-gradient(135deg, #6366f1 0%, #a855f7 100%);
-            border: none; border-radius: 12px;
-            color: white; font-weight: bold; font-size: 1.1rem;
-            cursor: pointer; transition: 0.3s;
-            box-shadow: 0 10px 20px rgba(99, 102, 241, 0.3);
+            border: none; border-radius: 16px;
+            color: white; font-weight: 800; font-size: 1.2rem;
+            cursor: pointer; transition: 0.4s;
+            box-shadow: 0 15px 30px rgba(99, 102, 241, 0.3);
         }
-        .btn-primary:active { transform: scale(0.98); }
+        .btn-primary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 20px 40px rgba(99, 102, 241, 0.4);
+        }
+        .btn-primary:active { transform: scale(0.97); }
         
         .loader {
             display: none; width: 24px; height: 24px; 
             border: 3px solid #FFF; border-bottom-color: transparent; 
-            border-radius: 50%; display: inline-block; box-sizing: border-box; 
-            animation: rotation 1s linear infinite; margin-right: 10px;
+            border-radius: 50%; box-sizing: border-box; 
+            animation: rotation 1s linear infinite;
         }
         @keyframes rotation { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+        .dev-tag {
+            margin-top: 30px; font-size: 0.7rem; color: #64748b;
+            letter-spacing: 2px; text-transform: uppercase; font-weight: 700;
+        }
+        .dev-name {
+            color: #818cf8; font-family: 'Outfit', sans-serif;
+        }
     </style>
 </head>
 <body>
 
     <div class="glass-card">
-        <div class="mb-8">
-            <h1 class="logo-text">ALPHA</h1>
-            <p class="text-gray-400 text-sm tracking-widest uppercase">E-Learning Platform</p>
+        <div class="mb-10">
+            <h1 class="logo-text">FULL MARK</h1>
+            <p class="text-gray-400 text-[10px] tracking-[0.4em] uppercase font-bold">E-Learning Ecosystem</p>
         </div>
 
         <form id="loginForm" onsubmit="handleLogin(event)">
             <div class="input-group">
-                <i class="fas fa-barcode input-icon"></i>
-                <input type="tel" id="code" class="input-field" placeholder="أدخل كود الطالب" required autocomplete="off">
+                <i class="fas fa-key input-icon"></i>
+                <input type="tel" id="code" class="input-field" placeholder="كود تفعيل الطالب" required autocomplete="off">
             </div>
 
             <button type="submit" id="loginBtn" class="btn-primary flex items-center justify-center">
-                <span id="btnText">تسجيل الدخول</span>
-                <span id="spinner" class="loader hidden"></span>
+                <span id="btnText">دخول المنصة</span>
+                <span id="spinner" class="loader"></span>
             </button>
         </form>
 
-        <div id="errorMsg" class="mt-4 text-red-400 text-sm hidden font-bold"></div>
+        <div id="errorMsg" class="mt-5 text-red-400 text-sm hidden font-bold bg-red-400/10 p-3 rounded-xl border border-red-400/20"></div>
         
-        <p class="mt-8 text-xs text-gray-500">
-            Design by <span class="text-indigo-400">Ahmed Mohamed</span>
-        </p>
+        <div class="dev-tag">
+            Developed by <span class="dev-name">ELGIZAWY</span>
+        </div>
     </div>
 
     <script>
@@ -126,7 +142,6 @@
         async function handleLogin(e) {
             e.preventDefault();
             const codeInput = document.getElementById('code').value.trim();
-            const btn = document.getElementById('loginBtn');
             const btnText = document.getElementById('btnText');
             const spinner = document.getElementById('spinner');
             const errorDiv = document.getElementById('errorMsg');
@@ -137,32 +152,28 @@
             errorDiv.classList.add('hidden');
 
             try {
-                // 1. البحث عن الكود في قاعدة البيانات
                 const snapshot = await db.ref('approvedStudents/' + codeInput).once('value');
                 const student = snapshot.val();
 
-                if (!student) throw "الكود غير صحيح، تأكد من الرقم.";
-                if (student.isBlocked) throw "عفواً، تم إيقاف هذا الحساب.";
+                if (!student) throw "كود الطالب غير صحيح، يرجى مراجعة الإدارة.";
+                if (student.isBlocked) throw "عفواً، تم حظر هذا الكود من الوصول.";
 
-                // 2. التحقق من الجهاز (Device Fingerprint)
                 let deviceId = localStorage.getItem('alpha_device_id');
                 if (!deviceId) {
-                    deviceId = 'DEV-' + Math.random().toString(36).substr(2, 9);
+                    deviceId = 'FM-' + Math.random().toString(36).substr(2, 9).toUpperCase();
                     localStorage.setItem('alpha_device_id', deviceId);
                 }
 
                 if (student.deviceId && student.deviceId !== deviceId) {
-                    throw "هذا الكود مسجل على جهاز آخر! 📱🚫";
+                    throw "هذا الكود مرتبط بجهاز آخر بالفعل! 📱🚫";
                 }
 
-                // 3. ربط الجهاز بالكود (لأول مرة)
                 if (!student.deviceId) {
                     await db.ref('approvedStudents/' + codeInput).update({ deviceId: deviceId });
                 }
 
-                // 4. حفظ الكود والنجاح
                 localStorage.setItem('alpha_user_code', codeInput);
-                window.location.href = 'subjects.html'; // الانتقال للصفحة الرئيسية الجديدة
+                window.location.href = 'subjects.html';
 
             } catch (err) {
                 errorDiv.textContent = err;
@@ -173,4 +184,5 @@
         }
     </script>
 </body>
-</html>
+    </html>
+    
