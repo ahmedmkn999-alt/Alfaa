@@ -2,206 +2,186 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>لوحة تحكم FULL MARK | الإدارة</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>FULL MARK | تسجيل الدخول</title>
+    
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet">
+    
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;700;900&family=Tajawal:wght@400;700;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
     <style>
-        body { font-family: 'Cairo', sans-serif; background: #020617; color: white; min-height: 100vh; }
-        .glass-card { background: rgba(15, 23, 42, 0.7); backdrop-filter: blur(20px); border: 1px solid rgba(99, 102, 241, 0.2); border-radius: 25px; }
-        .sidebar-link { transition: 0.3s; cursor: pointer; border-radius: 15px; margin-bottom: 5px; }
-        .sidebar-link.active { background: linear-gradient(90deg, #6366f1, #d946ef); color: white; box-shadow: 0 4px 15px rgba(99, 102, 241, 0.3); }
-        .status-badge { padding: 4px 10px; border-radius: 50px; font-size: 0.7rem; font-weight: bold; }
-        .bg-blocked { background: rgba(239, 68, 68, 0.2); color: #ef4444; border: 1px solid #ef4444; }
-        .bg-active { background: rgba(34, 197, 94, 0.2); color: #22c55e; border: 1px solid #22c55e; }
-        input, select { background: rgba(2, 6, 23, 0.6) !important; border: 1px solid rgba(99, 102, 241, 0.3) !important; color: white !important; }
-        table { border-spacing: 0 10px; border-collapse: separate; }
-        tr { background: rgba(30, 41, 59, 0.4); transition: 0.3s; }
-        tr:hover { background: rgba(30, 41, 59, 0.6); }
+        body {
+            background-color: #020617;
+            background-image: 
+                radial-gradient(at 0% 0%, hsla(253,16%,7%,1) 0, transparent 50%), 
+                radial-gradient(at 50% 0%, hsla(230,50%,15%,1) 0, transparent 50%), 
+                radial-gradient(at 100% 0%, hsla(280,50%,15%,1) 0, transparent 50%);
+            color: white; font-family: 'Tajawal', sans-serif;
+            height: 100vh; display: flex; align-items: center; justify-content: center;
+            overflow: hidden; margin: 0;
+        }
+
+        /* كارت تسجيل الدخول الزجاجي */
+        .glass-card {
+            background: rgba(15, 23, 42, 0.6);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(99, 102, 241, 0.2);
+            border-radius: 32px;
+            padding: 45px 35px;
+            width: 90%; max-width: 400px;
+            text-align: center;
+            box-shadow: 0 30px 60px -12px rgba(0, 0, 0, 0.6);
+            animation: slideUp 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(40px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .logo-text {
+            font-family: 'Outfit', sans-serif;
+            font-size: 3.2rem; font-weight: 900;
+            background: linear-gradient(135deg, #fff 30%, #6366f1 70%, #d946ef 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 5px; letter-spacing: -1px;
+            filter: drop-shadow(0 0 15px rgba(99, 102, 241, 0.3));
+        }
+
+        .input-group { position: relative; margin-bottom: 25px; }
+        
+        .input-field {
+            width: 100%; padding: 18px 20px 18px 55px;
+            background: rgba(2, 6, 23, 0.6);
+            border: 1px solid rgba(99, 102, 241, 0.2);
+            border-radius: 16px;
+            color: white; font-size: 1.1rem; outline: none; transition: 0.4s;
+            text-align: center; font-family: 'Outfit', sans-serif;
+        }
+
+        .input-field:focus {
+            border-color: #6366f1;
+            box-shadow: 0 0 20px rgba(99, 102, 241, 0.25);
+            background: rgba(2, 6, 23, 0.8);
+        }
+
+        .input-icon {
+            position: absolute; right: 20px; top: 50%; transform: translateY(-50%);
+            color: #6366f1; font-size: 1.3rem; opacity: 0.8;
+        }
+
+        .btn-primary {
+            width: 100%; padding: 18px;
+            background: linear-gradient(135deg, #6366f1 0%, #a855f7 100%);
+            border: none; border-radius: 16px;
+            color: white; font-weight: 800; font-size: 1.2rem;
+            cursor: pointer; transition: 0.4s;
+            box-shadow: 0 15px 30px rgba(99, 102, 241, 0.3);
+        }
+
+        .btn-primary:hover { transform: translateY(-3px); box-shadow: 0 20px 40px rgba(99, 102, 241, 0.4); }
+        .btn-primary:active { transform: scale(0.97); }
+        
+        .loader {
+            display: none; width: 24px; height: 24px; 
+            border: 3px solid #FFF; border-bottom-color: transparent; 
+            border-radius: 50%; animation: rotation 1s linear infinite;
+        }
+        @keyframes rotation { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+        .dev-tag { margin-top: 30px; font-size: 0.7rem; color: #64748b; letter-spacing: 2px; text-transform: uppercase; font-weight: 700; }
+        .dev-name { color: #818cf8; font-family: 'Outfit', sans-serif; }
     </style>
 </head>
 <body>
 
-    <div class="flex flex-col md:flex-row min-h-screen">
-        <aside class="w-full md:w-64 glass-card m-4 p-6 flex flex-col justify-between">
-            <div>
-                <div class="text-center mb-8">
-                    <h1 class="text-2xl font-black text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 to-fuchsia-500">FULL MARK</h1>
-                    <p class="text-[10px] text-gray-500 uppercase tracking-widest mt-1">Admin Dashboard</p>
-                </div>
-                <nav class="flex flex-col gap-2">
-                    <div onclick="showPage('stats')" id="link-stats" class="sidebar-link active p-4 flex items-center gap-3"><i class="fas fa-chart-pie"></i> الإحصائيات</div>
-                    <div onclick="showPage('add')" id="link-add" class="sidebar-link p-4 flex items-center gap-3"><i class="fas fa-user-plus"></i> إضافة طالب</div>
-                    <div onclick="showPage('list')" id="link-list" class="sidebar-link p-4 flex items-center gap-3"><i class="fas fa-users-cog"></i> إدارة الأكواد</div>
-                </nav>
-            </div>
-            
-            <div class="text-center border-t border-white/10 pt-4">
-                <p class="text-[10px] text-gray-500 tracking-widest uppercase">Powered By</p>
-                <p class="text-md font-bold text-white">ELGIZAWY</p>
-            </div>
-        </aside>
+    <div class="glass-card">
+        <div class="mb-10">
+            <h1 class="logo-text">FULL MARK</h1>
+            <p class="text-gray-400 text-[10px] tracking-[0.4em] uppercase font-bold">E-Learning Ecosystem</p>
+        </div>
 
-        <main class="flex-1 p-4 md:p-8">
-            <div id="page-stats" class="page-view">
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-                    <div class="glass-card p-6 border-b-4 border-indigo-500">
-                        <p class="text-gray-400 text-sm">إجمالي المشتركين</p>
-                        <h2 id="total-std" class="text-4xl font-bold mt-2">0</h2>
-                    </div>
-                    <div class="glass-card p-6 border-b-4 border-green-500">
-                        <p class="text-gray-400 text-sm">الأكواد النشطة</p>
-                        <h2 id="active-std" class="text-4xl font-bold mt-2 text-green-400">0</h2>
-                    </div>
-                    <div class="glass-card p-6 border-b-4 border-red-500">
-                        <p class="text-gray-400 text-sm">أكواد محظورة</p>
-                        <h2 id="blocked-std" class="text-4xl font-bold mt-2 text-red-400">0</h2>
-                    </div>
-                </div>
+        <form id="loginForm" onsubmit="handleLogin(event)">
+            <div class="input-group">
+                <i class="fas fa-key input-icon"></i>
+                <input type="tel" id="code" class="input-field" placeholder="كود تفعيل الطالب" required autocomplete="off">
             </div>
 
-            <div id="page-add" class="page-view hidden">
-                <div class="glass-card max-w-2xl mx-auto p-8 text-center">
-                    <h2 class="text-2xl font-bold mb-6 text-fuchsia-400">إنشاء كود طالب جديد</h2>
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-right">
-                        <div class="flex flex-col gap-2">
-                            <label class="text-xs text-gray-400">اسم الطالب</label>
-                            <input type="text" id="stdName" class="p-3 rounded-xl outline-none" placeholder="الاسم الكامل">
-                        </div>
-                        <div class="flex flex-col gap-2">
-                            <label class="text-xs text-gray-400">الشعبة</label>
-                            <select id="stdSection" class="p-3 rounded-xl outline-none">
-                                <option value="علمي علوم">علمي علوم</option>
-                                <option value="علمي رياضة">علمي رياضة</option>
-                                <option value="أدبي">أدبي</option>
-                            </select>
-                        </div>
-                        <div class="flex flex-col gap-2">
-                            <label class="text-xs text-gray-400">المدة</label>
-                            <select id="subType" class="p-3 rounded-xl outline-none">
-                                <option value="30">30 يوم</option>
-                                <option value="7">7 أيام</option>
-                                <option value="365">سنة كاملة</option>
-                            </select>
-                        </div>
-                        <div class="flex flex-col gap-2">
-                            <label class="text-xs text-gray-400">الكود</label>
-                            <input type="text" id="stdCode" class="p-3 rounded-xl font-mono text-indigo-400 font-bold" readonly>
-                        </div>
-                    </div>
-                    <button onclick="createCode()" class="w-full mt-8 p-4 rounded-xl bg-gradient-to-r from-indigo-600 to-fuchsia-600 font-bold hover:scale-105 transition">حفظ وتفعيل الكود</button>
-                </div>
-            </div>
+            <button type="submit" id="loginBtn" class="btn-primary flex items-center justify-center">
+                <span id="btnText">دخول المنصة</span>
+                <span id="spinner" class="loader"></span>
+            </button>
+        </form>
 
-            <div id="page-list" class="page-view hidden">
-                <div class="flex justify-between items-center mb-6">
-                    <h2 class="text-2xl font-bold">إدارة المشتركين</h2>
-                    <input type="text" onkeyup="searchTable()" id="searchInp" class="p-2 px-4 rounded-xl text-sm w-64 border border-white/10" placeholder="بحث...">
-                </div>
-                <div class="overflow-x-auto">
-                    <table class="w-full text-right">
-                        <thead>
-                            <tr class="text-gray-400 text-xs">
-                                <th class="p-4">اسم الطالب</th>
-                                <th class="p-4">الكود</th>
-                                <th class="p-4">الانتهاء</th>
-                                <th class="p-4 text-center">الإجراءات</th>
-                            </tr>
-                        </thead>
-                        <tbody id="codesTable"></tbody>
-                    </table>
-                </div>
-            </div>
-        </main>
+        <div id="errorMsg" class="mt-5 text-red-400 text-sm hidden font-bold bg-red-400/10 p-3 rounded-xl border border-red-400/20"></div>
+        
+        <div class="dev-tag">
+            Developed by <span class="dev-name">ELGIZAWY</span>
+        </div>
     </div>
 
     <script>
-        // إعدادات Firebase الخاصة بك
+        // إعدادات Firebase
         const firebaseConfig = { databaseURL: "https://fullmark-2025-default-rtdb.firebaseio.com" };
         firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
 
-        function generateCode() {
-            document.getElementById('stdCode').value = 'FM-' + Math.floor(100000 + Math.random() * 900000);
+        // التوجيه التلقائي إذا كان مسجل دخول مسبقاً
+        if(localStorage.getItem('alpha_user_code')) {
+            window.location.href = 'subjects.html';
         }
 
-        function showPage(id) {
-            document.querySelectorAll('.page-view').forEach(p => p.classList.add('hidden'));
-            document.querySelectorAll('.sidebar-link').forEach(l => l.classList.remove('active'));
-            document.getElementById('page-' + id).classList.remove('hidden');
-            document.getElementById('link-' + id).classList.add('active');
-            if(id === 'add') generateCode();
-        }
+        async function handleLogin(e) {
+            e.preventDefault();
+            const codeInput = document.getElementById('code').value.trim();
+            const btnText = document.getElementById('btnText');
+            const spinner = document.getElementById('spinner');
+            const errorDiv = document.getElementById('errorMsg');
 
-        async function createCode() {
-            const name = document.getElementById('stdName').value;
-            const code = document.getElementById('stdCode').value;
-            const section = document.getElementById('stdSection').value;
-            const days = parseInt(document.getElementById('subType').value);
+            // بدء حالة التحميل
+            btnText.style.display = 'none';
+            spinner.style.display = 'inline-block';
+            errorDiv.classList.add('hidden');
 
-            if(!name) return alert("أدخل اسم الطالب");
+            try {
+                // جلب بيانات الطالب من Firebase
+                const snapshot = await db.ref('approvedStudents/' + codeInput).once('value');
+                const student = snapshot.val();
 
-            const expiryDate = new Date();
-            expiryDate.setDate(expiryDate.getDate() + days);
+                if (!student) throw "كود الطالب غير صحيح، يرجى مراجعة الإدارة.";
+                if (student.isBlocked) throw "عفواً، تم حظر هذا الكود من الوصول.";
 
-            await db.ref('approvedStudents/' + code).set({
-                studentName: name,
-                section: section,
-                expiryDate: expiryDate.getTime(),
-                isBlocked: false,
-                deviceId: null
-            });
-
-            alert("تم التفعيل: " + code);
-            showPage('list');
-        }
-
-        function loadData() {
-            db.ref('approvedStudents').on('value', snap => {
-                const data = snap.val();
-                let html = '';
-                let total = 0, active = 0, blocked = 0;
-                const now = new Date().getTime();
-
-                for(let id in data) {
-                    const s = data[id];
-                    total++;
-                    if(s.isBlocked) blocked++; else active++;
-
-                    const timeLeft = Math.ceil((s.expiryDate - now) / (1000 * 60 * 60 * 24));
-
-                    html += `
-                        <tr class="rounded-xl">
-                            <td class="p-4 font-bold">${s.studentName}<br><span class="text-[10px] text-indigo-400">${s.section}</span></td>
-                            <td class="p-4 font-mono text-fuchsia-400">${id}</td>
-                            <td class="p-4 text-xs">${new Date(s.expiryDate).toLocaleDateString('ar-EG')}</td>
-                            <td class="p-4 flex justify-center gap-3">
-                                <button onclick="deleteCode('${id}')" class="text-red-500"><i class="fas fa-trash"></i></button>
-                                <button onclick="toggleBlock('${id}', ${s.isBlocked})" class="text-orange-500"><i class="fas fa-ban"></i></button>
-                            </td>
-                        </tr>
-                    `;
+                // نظام البصمة للجهاز (قفل الكود على جهاز واحد)
+                let deviceId = localStorage.getItem('alpha_device_id');
+                if (!deviceId) {
+                    deviceId = 'FM-' + Math.random().toString(36).substr(2, 9).toUpperCase();
+                    localStorage.setItem('alpha_device_id', deviceId);
                 }
-                document.getElementById('codesTable').innerHTML = html;
-                document.getElementById('total-std').innerText = total;
-                document.getElementById('active-std').innerText = active;
-                document.getElementById('blocked-std').innerText = blocked;
-            });
-        }
 
-        function deleteCode(id) { if(confirm('حذف؟')) db.ref('approvedStudents/'+id).remove(); }
-        function toggleBlock(id, status) { db.ref('approvedStudents/'+id).update({isBlocked: !status}); }
-        function searchTable() {
-            let val = document.getElementById('searchInp').value.toLowerCase();
-            let rows = document.getElementById('codesTable').getElementsByTagName('tr');
-            for(let r of rows) r.style.display = r.innerText.toLowerCase().includes(val) ? '' : 'none';
-        }
+                if (student.deviceId && student.deviceId !== deviceId) {
+                    throw "هذا الكود مرتبط بجهاز آخر بالفعل! 📱🚫";
+                }
 
-        loadData();
+                // ربط الكود بالجهاز في أول مرة دخول
+                if (!student.deviceId) {
+                    await db.ref('approvedStudents/' + codeInput).update({ deviceId: deviceId });
+                }
+
+                // نجاح الدخول
+                localStorage.setItem('alpha_user_code', codeInput);
+                window.location.href = 'subjects.html';
+
+            } catch (err) {
+                errorDiv.textContent = err;
+                errorDiv.classList.remove('hidden');
+                btnText.style.display = 'inline';
+                spinner.style.display = 'none';
+            }
+        }
     </script>
 </body>
-                            </html>
-                            
+</html>
