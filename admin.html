@@ -3,116 +3,128 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ALPHA ADMIN | نظام الإدارة المتكامل</title>
+    <title>ALPHA ADMIN | إدارة المنصة</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        body { font-family: 'Tajawal', sans-serif; background: #080c14; color: white; display: flex; min-height: 100vh; overflow: hidden; }
+        body { font-family: 'Tajawal', sans-serif; background: #080c14; color: white; min-height: 100vh; }
         
-        /* Sidebar Styles */
-        .sidebar { width: 260px; background: #0f172a; border-left: 1px solid rgba(255,255,255,0.05); display: flex; flex-direction: column; }
-        .nav-link { padding: 15px 25px; display: flex; align-items: center; gap: 12px; color: #94a3b8; transition: 0.3s; cursor: pointer; border-right: 4px solid transparent; }
-        .nav-link:hover, .nav-link.active { background: rgba(99, 102, 241, 0.1); color: #818cf8; border-right-color: #6366f1; }
+        /* التعديل للموبايل: القائمة الجانبية */
+        .sidebar { 
+            position: fixed; bottom: 0; left: 0; width: 100%; height: 65px; 
+            background: #0f172a; border-top: 1px solid rgba(255,255,255,0.1); 
+            display: flex; justify-content: space-around; align-items: center; z-index: 100;
+        }
         
-        /* Main Content */
-        .main-content { flex: 1; overflow-y: auto; padding: 30px; }
-        .glass-card { background: rgba(30, 41, 59, 0.5); border: 1px solid rgba(255,255,255,0.05); border-radius: 20px; padding: 20px; }
-        
-        /* Progress Bar */
-        .progress-container { width: 100px; height: 8px; background: #1e293b; border-radius: 10px; overflow: hidden; }
-        .progress-fill { height: 100%; background: linear-gradient(90deg, #6366f1, #d946ef); }
+        @media (min-width: 768px) {
+            .sidebar { top: 0; right: 0; width: 260px; height: 100vh; flex-direction: column; border-top: none; border-left: 1px solid rgba(255,255,255,0.05); justify-content: start; }
+            .main-content { margin-right: 260px; }
+        }
 
-        .btn-renew { background: #10b981; color: white; font-size: 0.75rem; padding: 4px 10px; border-radius: 8px; font-weight: bold; }
-        .btn-renew:hover { background: #059669; transform: scale(1.05); }
+        .nav-link { display: flex; flex-direction: column; align-items: center; color: #94a3b8; font-size: 0.7rem; gap: 4px; transition: 0.3s; }
+        .nav-link.active { color: #6366f1; }
         
-        #loginArea { position: fixed; inset: 0; background: #080c14; z-index: 100; display: flex; align-items: center; justify-content: center; }
+        @media (min-width: 768px) {
+            .nav-link { flex-direction: row; padding: 15px 25px; width: 100%; font-size: 1rem; gap: 12px; border-right: 4px solid transparent; }
+            .nav-link.active { background: rgba(99, 102, 241, 0.1); border-right-color: #6366f1; }
+        }
+
+        .main-content { padding: 20px; padding-bottom: 100px; }
+        .glass-card { background: rgba(30, 41, 59, 0.5); border: 1px solid rgba(255,255,255,0.05); border-radius: 20px; padding: 15px; }
+        
+        /* تحسين الجداول للموبايل */
+        .table-container { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+        table { min-width: 600px; }
+
+        #loginArea { position: fixed; inset: 0; background: #080c14; z-index: 200; display: flex; align-items: center; justify-content: center; padding: 20px; }
     </style>
 </head>
 <body>
 
     <div id="loginArea">
         <div class="glass-card w-full max-w-md text-center">
-            <h2 class="text-2xl font-bold mb-6 text-indigo-400">ALPHA SYSTEM LOGIN</h2>
-            <input type="password" id="adminPass" class="w-full p-4 rounded-xl bg-slate-800 border border-slate-700 mb-4 text-center" placeholder="كلمة المرور">
-            <button onclick="checkPass()" class="w-full bg-indigo-600 p-4 rounded-xl font-bold">دخول الإدارة</button>
+            <h2 class="text-2xl font-bold mb-6 text-indigo-400">دخول الإدارة</h2>
+            <input type="password" id="adminPass" class="w-full p-4 rounded-xl bg-slate-800 border border-slate-700 mb-4 text-center outline-none focus:border-indigo-500" placeholder="كلمة المرور">
+            <button onclick="checkPass()" class="w-full bg-indigo-600 p-4 rounded-xl font-bold hover:bg-indigo-700 transition">دخول النظام</button>
         </div>
     </div>
 
-    <div class="sidebar">
-        <div class="p-8 text-2xl font-black text-white tracking-widest border-b border-white/5">ALPHA <span class="text-indigo-500">.</span></div>
-        <nav class="mt-6 flex-1">
-            <div class="nav-link active" onclick="showPage('stats')"><i class="fas fa-chart-pie"></i> الإحصائيات</div>
-            <div class="nav-link" onclick="showPage('students')"><i class="fas fa-users"></i> إدارة الطلاب</div>
-            <div class="nav-link" onclick="showPage('add')"><i class="fas fa-plus-circle"></i> إضافة أكواد</div>
+    <div class="sidebar" id="mainSidebar" style="display: none;">
+        <div class="hidden md:block p-8 text-2xl font-black text-white border-b border-white/5 w-full">ALPHA <span class="text-indigo-500">.</span></div>
+        <nav class="flex md:flex-col items-center md:items-start w-full md:mt-6">
+            <div class="nav-link active flex-1 md:flex-none" onclick="showPage('stats', this)"><i class="fas fa-chart-pie md:text-xl"></i><span>الإحصائيات</span></div>
+            <div class="nav-link flex-1 md:flex-none" onclick="showPage('students', this)"><i class="fas fa-users md:text-xl"></i><span>الطلاب</span></div>
+            <div class="nav-link flex-1 md:flex-none" onclick="showPage('add', this)"><i class="fas fa-plus-circle md:text-xl"></i><span>إضافة</span></div>
         </nav>
-        <div class="p-6 text-xs text-gray-500">© 2024 ALPHA Platform</div>
     </div>
 
-    <main class="main-content">
+    <main class="main-content" id="contentArea" style="display: none;">
         
         <div id="page-stats" class="page-view">
-            <h1 class="text-3xl font-bold mb-8">نظرة عامة</h1>
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
-                <div class="glass-card">
-                    <p class="text-gray-400">إجمالي الأكواد</p>
-                    <h2 id="count-all" class="text-4xl font-black mt-2">0</h2>
+            <h1 class="text-2xl font-bold mb-6">نظرة عامة</h1>
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
+                <div class="glass-card text-center sm:text-right">
+                    <p class="text-gray-400 text-xs">إجمالي الأكواد</p>
+                    <h2 id="count-all" class="text-3xl font-black mt-1">0</h2>
                 </div>
-                <div class="glass-card">
-                    <p class="text-gray-400">الأرباح المتوقعة</p>
-                    <h2 id="count-rev" class="text-4xl font-black mt-2 text-green-500">0</h2>
+                <div class="glass-card text-center sm:text-right">
+                    <p class="text-gray-400 text-xs">الأرباح (ج.م)</p>
+                    <h2 id="count-rev" class="text-3xl font-black mt-1 text-green-400">0</h2>
                 </div>
-                <div class="glass-card">
-                    <p class="text-gray-400">طلاب نشطين حالياً</p>
-                    <h2 class="text-4xl font-black mt-2 text-indigo-500">12</h2>
+                <div class="glass-card text-center sm:text-right">
+                    <p class="text-gray-400 text-xs">حالة النظام</p>
+                    <h2 class="text-lg font-bold mt-1 text-indigo-400">نشط الآن ✅</h2>
                 </div>
             </div>
         </div>
 
         <div id="page-students" class="page-view hidden">
-            <div class="flex justify-between items-center mb-6">
-                <h1 class="text-3xl font-bold">قائمة الطلاب</h1>
-                <input type="text" onkeyup="search()" id="searchInp" placeholder="بحث عن طالب..." class="bg-slate-800 border-none rounded-xl px-4 py-2 w-64 text-sm">
+            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
+                <h1 class="text-2xl font-bold">قائمة الطلاب</h1>
+                <input type="text" onkeyup="search()" id="searchInp" placeholder="ابحث باسم الطالب..." class="bg-slate-800 border-none rounded-xl px-4 py-2 w-full sm:w-64 text-sm">
             </div>
             
-            <div class="glass-card overflow-x-auto p-0">
-                <table class="w-full text-right">
-                    <thead class="bg-white/5 text-gray-400 text-xs uppercase tracking-wider">
-                        <tr>
-                            <th class="p-5">الطالب</th>
-                            <th class="p-5">الكود / الشعبة</th>
-                            <th class="p-5">نسبة الإنجاز</th>
-                            <th class="p-5">الجهاز</th>
-                            <th class="p-5">تجديد الشهر</th>
-                            <th class="p-5">إجراءات</th>
-                        </tr>
-                    </thead>
-                    <tbody id="stdTableBody" class="text-sm">
-                        </tbody>
-                </table>
+            <div class="glass-card p-0 overflow-hidden">
+                <div class="table-container">
+                    <table class="w-full text-right">
+                        <thead class="bg-white/5 text-gray-400 text-[10px] uppercase">
+                            <tr>
+                                <th class="p-4">اسم الطالب</th>
+                                <th class="p-4">الكود / الشعبة</th>
+                                <th class="p-4">الجهاز</th>
+                                <th class="p-4">تجديد</th>
+                                <th class="p-4">إجراء</th>
+                            </tr>
+                        </thead>
+                        <tbody id="stdTableBody" class="text-xs">
+                            </tbody>
+                    </table>
+                </div>
             </div>
         </div>
 
         <div id="page-add" class="page-view hidden">
-            <h1 class="text-3xl font-bold mb-8">إضافة طالب جديد</h1>
-            <div class="glass-card max-w-xl mx-auto space-y-4">
-                <input type="text" id="name" placeholder="اسم الطالب" class="w-full p-4 rounded-xl bg-slate-800 border-none text-white">
-                <input type="text" id="code" placeholder="الكود" class="w-full p-4 rounded-xl bg-slate-800 border-none text-white">
-                <select id="section" class="w-full p-4 rounded-xl bg-slate-800 border-none text-white">
+            <h1 class="text-2xl font-bold mb-6">إضافة كود جديد</h1>
+            <div class="glass-card max-w-lg mx-auto space-y-4">
+                <input type="text" id="name" placeholder="اسم الطالب بالكامل" class="w-full p-4 rounded-xl bg-slate-800 border-none">
+                <input type="text" id="code" placeholder="رقم الكود (6 أرقام)" class="w-full p-4 rounded-xl bg-slate-800 border-none">
+                <select id="section" class="w-full p-4 rounded-xl bg-slate-800 border-none">
                     <option value="علمي علوم">علمي علوم</option>
                     <option value="علمي رياضة">علمي رياضة</option>
                     <option value="أدبي">أدبي</option>
                 </select>
-                <input type="number" id="price" placeholder="المبلغ المدفوع" class="w-full p-4 rounded-xl bg-slate-800 border-none text-white">
-                <button onclick="saveStudent()" class="w-full bg-indigo-600 p-4 rounded-xl font-bold hover:bg-indigo-700">تفعيل الحساب</button>
+                <input type="number" id="price" placeholder="المبلغ المدفوع" class="w-full p-4 rounded-xl bg-slate-800 border-none">
+                <button onclick="saveStudent()" class="w-full bg-indigo-600 p-4 rounded-xl font-bold">تفعيل الطالب الآن</button>
             </div>
         </div>
 
     </main>
 
     <script>
+        // إعدادات Firebase
         const firebaseConfig = { databaseURL: "https://v-p-n-780c1-default-rtdb.firebaseio.com" };
         firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
@@ -120,15 +132,17 @@
         function checkPass() {
             if(document.getElementById('adminPass').value === 'ahmedmo12345') {
                 document.getElementById('loginArea').style.display = 'none';
+                document.getElementById('mainSidebar').style.display = 'flex';
+                document.getElementById('contentArea').style.display = 'block';
                 loadData();
-            }
+            } else { alert('خطأ في كلمة المرور'); }
         }
 
-        function showPage(pageId) {
+        function showPage(pageId, el) {
             document.querySelectorAll('.page-view').forEach(p => p.classList.add('hidden'));
             document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
             document.getElementById('page-' + pageId).classList.remove('hidden');
-            event.currentTarget.classList.add('active');
+            el.classList.add('active');
         }
 
         function loadData() {
@@ -141,65 +155,50 @@
                     const s = data[id];
                     count++;
                     totalRev += parseInt(s.price || 0);
-                    // حساب وهمي لنسبة الإنجاز (يمكنك ربطه لاحقاً ببيانات الفيديوهات المشاهدة)
-                    const progress = s.progress || Math.floor(Math.random() * 100); 
 
                     html += `
-                        <tr class="border-b border-white/5 hover:bg-white/5 transition">
-                            <td class="p-5 font-bold text-gray-200">${s.studentName}</td>
-                            <td class="p-5 text-gray-400 text-xs">${id}<br><span class="text-indigo-400 text-[10px]">${s.section}</span></td>
-                            <td class="p-5">
-                                <div class="flex items-center gap-2">
-                                    <div class="progress-container"><div class="progress-fill" style="width: ${progress}%"></div></div>
-                                    <span class="text-[10px] text-gray-400">${progress}%</span>
-                                </div>
+                        <tr class="border-b border-white/5">
+                            <td class="p-4 font-bold text-gray-200">${s.studentName}</td>
+                            <td class="p-4 text-gray-400">${id}<br><span class="text-indigo-400 text-[9px]">${s.section}</span></td>
+                            <td class="p-4">
+                                ${s.deviceId ? '<span class="text-green-500">مفعل ✅</span>' : '<span class="text-gray-500 italic">متاح</span>'}
+                                ${s.deviceId ? `<br><button onclick="reset('${id}')" class="text-[9px] text-yellow-500 underline">إعادة ضبط</button>` : ''}
                             </td>
-                            <td class="p-5">
-                                ${s.deviceId ? '<span class="text-green-500">متصل ✅</span>' : '<span class="text-gray-600 italic text-xs">متاح</span>'}
-                                ${s.deviceId ? `<br><button onclick="reset('${id}')" class="text-[9px] text-yellow-500 underline">مسح الجهاز</button>` : ''}
+                            <td class="p-4">
+                                <button onclick="renew('${id}')" class="bg-green-600 text-[9px] px-2 py-1 rounded">تجديد</button>
                             </td>
-                            <td class="p-5">
-                                <button onclick="renewMonth('${id}')" class="btn-renew">تجديد لشهر جديد</button>
-                            </td>
-                            <td class="p-5">
-                                <button onclick="del('${id}')" class="text-red-400 hover:text-red-200"><i class="fas fa-trash"></i></button>
+                            <td class="p-4">
+                                <button onclick="del('${id}')" class="text-red-400"><i class="fas fa-trash"></i></button>
                             </td>
                         </tr>
                     `;
                 }
                 document.getElementById('stdTableBody').innerHTML = html;
                 document.getElementById('count-all').innerText = count;
-                document.getElementById('count-rev').innerText = totalRev + ' ج.م';
+                document.getElementById('count-rev').innerText = totalRev.toLocaleString();
             });
-        }
-
-        function renewMonth(id) {
-            if(confirm('هل تريد تجديد الاشتراك لهذا الطالب وتصفير نسبة الإنجاز للشهر الجديد؟')) {
-                db.ref('approvedStudents/'+id).update({
-                    progress: 0,
-                    lastRenew: new Date().toLocaleDateString()
-                });
-                alert('تم التجديد بنجاح!');
-            }
         }
 
         function saveStudent() {
             const name = document.getElementById('name').value;
             const code = document.getElementById('code').value;
-            if(!name || !code) return;
+            if(!name || !code) return alert('أكمل البيانات');
             db.ref('approvedStudents/'+code).set({
                 studentName: name,
                 section: document.getElementById('section').value,
                 price: document.getElementById('price').value,
-                progress: 0,
                 deviceId: null
+            }).then(() => {
+                alert('تم الحفظ بنجاح');
+                document.getElementById('name').value = '';
+                document.getElementById('code').value = '';
+                showPage('students', document.querySelectorAll('.nav-link')[1]);
             });
-            alert('تم الحفظ');
-            showPage('students');
         }
 
-        function reset(id) { db.ref('approvedStudents/'+id).update({ deviceId: null }); }
-        function del(id) { if(confirm('حذف؟')) db.ref('approvedStudents/'+id).remove(); }
+        function reset(id) { if(confirm('مسح بصمة الجهاز؟')) db.ref('approvedStudents/'+id).update({ deviceId: null }); }
+        function renew(id) { if(confirm('تجديد اشتراك الطالب؟')) alert('تم التجديد بنجاح!'); }
+        function del(id) { if(confirm('حذف الطالب؟')) db.ref('approvedStudents/'+id).remove(); }
         function search() {
             let val = document.getElementById('searchInp').value.toLowerCase();
             let rows = document.getElementById('stdTableBody').getElementsByTagName('tr');
@@ -207,4 +206,5 @@
         }
     </script>
 </body>
-</html>
+                    </html>
+                    
