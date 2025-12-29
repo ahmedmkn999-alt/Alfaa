@@ -3,195 +3,207 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>القيادة | ALPHA Admin</title>
+    <title>ALPHA ADMIN | نظام الإدارة المتكامل</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@900&family=Tajawal:wght@400;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
     <style>
-        body { background: #000; color: white; font-family: 'Tajawal', sans-serif; min-height: 100vh; overflow-x: hidden; }
-        .bg-glow { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; background: radial-gradient(circle at 50% 0%, #1e1b4b, #000); }
+        body { font-family: 'Tajawal', sans-serif; background: #080c14; color: white; display: flex; min-height: 100vh; overflow: hidden; }
         
-        /* شاشة القفل */
-        #lockScreen {
-            position: fixed; inset: 0; background: #000; z-index: 100;
-            display: flex; align-items: center; justify-content: center;
-        }
-
-        /* كروت الإحصائيات */
-        .stat-card {
-            background: rgba(30, 41, 59, 0.4); border: 1px solid rgba(255,255,255,0.1);
-            padding: 20px; border-radius: 20px; backdrop-filter: blur(10px);
-        }
-        .stat-num { font-size: 2.5rem; font-weight: 900; background: linear-gradient(to right, #6366f1, #d946ef); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-
-        /* الجدول */
-        .glass-table {
-            width: 100%; border-collapse: separate; border-spacing: 0 10px;
-        }
-        .glass-table th { color: #94a3b8; font-size: 0.8rem; text-align: right; padding: 10px 20px; }
-        .glass-table td { background: rgba(255,255,255,0.03); padding: 15px 20px; first-child: border-radius: 12px 0 0 12px; last-child: border-radius: 0 12px 12px 0; }
-        .glass-table tr:hover td { background: rgba(99, 102, 241, 0.1); }
+        /* Sidebar Styles */
+        .sidebar { width: 260px; background: #0f172a; border-left: 1px solid rgba(255,255,255,0.05); display: flex; flex-direction: column; }
+        .nav-link { padding: 15px 25px; display: flex; align-items: center; gap: 12px; color: #94a3b8; transition: 0.3s; cursor: pointer; border-right: 4px solid transparent; }
+        .nav-link:hover, .nav-link.active { background: rgba(99, 102, 241, 0.1); color: #818cf8; border-right-color: #6366f1; }
         
-        /* الأزرار */
-        .btn-alpha { background: linear-gradient(135deg, #6366f1, #8b5cf6); color: white; padding: 10px 20px; border-radius: 12px; font-weight: bold; }
-        .btn-danger { background: rgba(239, 68, 68, 0.2); color: #ef4444; border: 1px solid #ef4444; padding: 5px 10px; border-radius: 8px; }
+        /* Main Content */
+        .main-content { flex: 1; overflow-y: auto; padding: 30px; }
+        .glass-card { background: rgba(30, 41, 59, 0.5); border: 1px solid rgba(255,255,255,0.05); border-radius: 20px; padding: 20px; }
+        
+        /* Progress Bar */
+        .progress-container { width: 100px; height: 8px; background: #1e293b; border-radius: 10px; overflow: hidden; }
+        .progress-fill { height: 100%; background: linear-gradient(90deg, #6366f1, #d946ef); }
+
+        .btn-renew { background: #10b981; color: white; font-size: 0.75rem; padding: 4px 10px; border-radius: 8px; font-weight: bold; }
+        .btn-renew:hover { background: #059669; transform: scale(1.05); }
+        
+        #loginArea { position: fixed; inset: 0; background: #080c14; z-index: 100; display: flex; align-items: center; justify-content: center; }
     </style>
 </head>
-<body class="p-6">
-    <div class="bg-glow"></div>
+<body>
 
-    <div id="lockScreen">
-        <div class="text-center w-80">
-            <h1 class="text-4xl font-black mb-6 tracking-widest font-[Outfit]">ALPHA</h1>
-            <input type="password" id="adminPass" placeholder="كلمة المرور" class="w-full bg-white/10 border border-white/20 p-3 rounded-xl text-center text-white outline-none mb-4 focus:border-indigo-500">
-            <button onclick="checkPass()" class="btn-alpha w-full">دخول النظام</button>
+    <div id="loginArea">
+        <div class="glass-card w-full max-w-md text-center">
+            <h2 class="text-2xl font-bold mb-6 text-indigo-400">ALPHA SYSTEM LOGIN</h2>
+            <input type="password" id="adminPass" class="w-full p-4 rounded-xl bg-slate-800 border border-slate-700 mb-4 text-center" placeholder="كلمة المرور">
+            <button onclick="checkPass()" class="w-full bg-indigo-600 p-4 rounded-xl font-bold">دخول الإدارة</button>
         </div>
     </div>
 
-    <div id="dashboard" class="hidden">
-        <header class="flex justify-between items-center mb-10">
-            <div>
-                <h1 class="text-3xl font-bold">لوحة القيادة</h1>
-                <p class="text-gray-400 text-sm">إدارة الطلاب والأكواد</p>
-            </div>
-            <button onclick="location.reload()" class="bg-white/10 p-3 rounded-full hover:bg-white/20"><i class="fas fa-sync"></i></button>
-        </header>
+    <div class="sidebar">
+        <div class="p-8 text-2xl font-black text-white tracking-widest border-b border-white/5">ALPHA <span class="text-indigo-500">.</span></div>
+        <nav class="mt-6 flex-1">
+            <div class="nav-link active" onclick="showPage('stats')"><i class="fas fa-chart-pie"></i> الإحصائيات</div>
+            <div class="nav-link" onclick="showPage('students')"><i class="fas fa-users"></i> إدارة الطلاب</div>
+            <div class="nav-link" onclick="showPage('add')"><i class="fas fa-plus-circle"></i> إضافة أكواد</div>
+        </nav>
+        <div class="p-6 text-xs text-gray-500">© 2024 ALPHA Platform</div>
+    </div>
 
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
-            <div class="stat-card">
-                <p class="text-gray-400 text-sm">إجمالي الطلاب</p>
-                <div id="totalStudents" class="stat-num">0</div>
-            </div>
-            <div class="stat-card">
-                <p class="text-gray-400 text-sm">إجمالي الأرباح</p>
-                <div id="totalRevenue" class="stat-num">0 ج.م</div>
-            </div>
-            <div class="stat-card">
-                <p class="text-gray-400 text-sm">الأكواد المباعة</p>
-                <div id="soldCodes" class="stat-num">0</div>
+    <main class="main-content">
+        
+        <div id="page-stats" class="page-view">
+            <h1 class="text-3xl font-bold mb-8">نظرة عامة</h1>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
+                <div class="glass-card">
+                    <p class="text-gray-400">إجمالي الأكواد</p>
+                    <h2 id="count-all" class="text-4xl font-black mt-2">0</h2>
+                </div>
+                <div class="glass-card">
+                    <p class="text-gray-400">الأرباح المتوقعة</p>
+                    <h2 id="count-rev" class="text-4xl font-black mt-2 text-green-500">0</h2>
+                </div>
+                <div class="glass-card">
+                    <p class="text-gray-400">طلاب نشطين حالياً</p>
+                    <h2 class="text-4xl font-black mt-2 text-indigo-500">12</h2>
+                </div>
             </div>
         </div>
 
-        <div class="stat-card mb-10">
-            <h2 class="text-xl font-bold mb-6 border-r-4 border-indigo-500 pr-3">إصدار كود جديد</h2>
-            <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
-                <input id="stdName" type="text" placeholder="اسم الطالب" class="bg-black/30 border border-white/10 p-3 rounded-xl text-white outline-none focus:border-indigo-500">
-                <select id="stdSec" class="bg-black/30 border border-white/10 p-3 rounded-xl text-white outline-none">
+        <div id="page-students" class="page-view hidden">
+            <div class="flex justify-between items-center mb-6">
+                <h1 class="text-3xl font-bold">قائمة الطلاب</h1>
+                <input type="text" onkeyup="search()" id="searchInp" placeholder="بحث عن طالب..." class="bg-slate-800 border-none rounded-xl px-4 py-2 w-64 text-sm">
+            </div>
+            
+            <div class="glass-card overflow-x-auto p-0">
+                <table class="w-full text-right">
+                    <thead class="bg-white/5 text-gray-400 text-xs uppercase tracking-wider">
+                        <tr>
+                            <th class="p-5">الطالب</th>
+                            <th class="p-5">الكود / الشعبة</th>
+                            <th class="p-5">نسبة الإنجاز</th>
+                            <th class="p-5">الجهاز</th>
+                            <th class="p-5">تجديد الشهر</th>
+                            <th class="p-5">إجراءات</th>
+                        </tr>
+                    </thead>
+                    <tbody id="stdTableBody" class="text-sm">
+                        </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div id="page-add" class="page-view hidden">
+            <h1 class="text-3xl font-bold mb-8">إضافة طالب جديد</h1>
+            <div class="glass-card max-w-xl mx-auto space-y-4">
+                <input type="text" id="name" placeholder="اسم الطالب" class="w-full p-4 rounded-xl bg-slate-800 border-none text-white">
+                <input type="text" id="code" placeholder="الكود" class="w-full p-4 rounded-xl bg-slate-800 border-none text-white">
+                <select id="section" class="w-full p-4 rounded-xl bg-slate-800 border-none text-white">
                     <option value="علمي علوم">علمي علوم</option>
                     <option value="علمي رياضة">علمي رياضة</option>
                     <option value="أدبي">أدبي</option>
-                    <option value="أزهر">أزهر</option>
                 </select>
-                <input id="price" type="number" value="100" placeholder="السعر" class="bg-black/30 border border-white/10 p-3 rounded-xl text-white outline-none text-center">
-                <button onclick="createCode()" class="btn-alpha">إنشاء <i class="fas fa-plus mr-2"></i></button>
-            </div>
-            
-            <div id="result" class="hidden mt-6 bg-green-500/10 border border-green-500/30 p-4 rounded-xl text-center">
-                <p class="text-green-400 text-sm mb-2">تم الإنشاء بنجاح!</p>
-                <div id="newCode" class="text-3xl font-mono font-bold tracking-widest text-white select-all cursor-pointer" onclick="navigator.clipboard.writeText(this.innerText); alert('تم النسخ')"></div>
+                <input type="number" id="price" placeholder="المبلغ المدفوع" class="w-full p-4 rounded-xl bg-slate-800 border-none text-white">
+                <button onclick="saveStudent()" class="w-full bg-indigo-600 p-4 rounded-xl font-bold hover:bg-indigo-700">تفعيل الحساب</button>
             </div>
         </div>
 
-        <h2 class="text-xl font-bold mb-4">أحدث المشتركين</h2>
-        <div class="overflow-x-auto">
-            <table class="glass-table">
-                <thead>
-                    <tr>
-                        <th>الاسم</th>
-                        <th>الكود</th>
-                        <th>الشعبة</th>
-                        <th>السعر</th>
-                        <th>تحكم</th>
-                    </tr>
-                </thead>
-                <tbody id="tableBody"></tbody>
-            </table>
-        </div>
-    </div>
+    </main>
 
     <script>
-        // إعدادات الفايربيس (القديم FullMark)
-        const firebaseConfig = {
-            apiKey: "AIzaSyD1QB3qaFfkGYq0OWOEAr83V25NAPFwxzs",
-            authDomain: "fullmark-2025.firebaseapp.com",
-            databaseURL: "https://fullmark-2025-default-rtdb.firebaseio.com",
-            projectId: "fullmark-2025",
-            storageBucket: "fullmark-2025.firebasestorage.app",
-            messagingSenderId: "963956202032",
-            appId: "1:963956202032:web:4df914457d79b75dee2bf5"
-        };
+        const firebaseConfig = { databaseURL: "https://v-p-n-780c1-default-rtdb.firebaseio.com" };
         firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
 
         function checkPass() {
-            const p = document.getElementById('adminPass').value;
-            if(p === 'ahmedmo12345') { // الباسورد القديم بتاعك
-                document.getElementById('lockScreen').style.display = 'none';
-                document.getElementById('dashboard').classList.remove('hidden');
+            if(document.getElementById('adminPass').value === 'ahmedmo12345') {
+                document.getElementById('loginArea').style.display = 'none';
                 loadData();
-            } else {
-                alert('كلمة المرور خطأ ❌');
             }
         }
 
-        function createCode() {
-            const name = document.getElementById('stdName').value;
-            const sec = document.getElementById('stdSec').value;
-            const price = document.getElementById('price').value;
-            
-            if(!name) return alert('اكتب اسم الطالب');
-
-            const code = Math.floor(100000 + Math.random() * 900000).toString();
-            
-            db.ref('approvedStudents/'+code).set({
-                studentName: name, section: sec, price: price,
-                expiry: Date.now() + (30 * 24 * 60 * 60 * 1000), // 30 يوم
-                isBlocked: false, createdAt: Date.now()
-            }).then(() => {
-                document.getElementById('result').classList.remove('hidden');
-                document.getElementById('newCode').innerText = code;
-                document.getElementById('stdName').value = '';
-            });
+        function showPage(pageId) {
+            document.querySelectorAll('.page-view').forEach(p => p.classList.add('hidden'));
+            document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
+            document.getElementById('page-' + pageId).classList.remove('hidden');
+            event.currentTarget.classList.add('active');
         }
 
         function loadData() {
             db.ref('approvedStudents').on('value', snap => {
-                const data = snap.val() || {};
-                const list = document.getElementById('tableBody');
-                list.innerHTML = '';
-                
-                let count = 0;
-                let money = 0;
+                const data = snap.val();
+                let html = '';
+                let totalRev = 0, count = 0;
 
-                Object.entries(data).reverse().forEach(([code, val]) => {
+                for(let id in data) {
+                    const s = data[id];
                     count++;
-                    money += parseInt(val.price || 0);
+                    totalRev += parseInt(s.price || 0);
+                    // حساب وهمي لنسبة الإنجاز (يمكنك ربطه لاحقاً ببيانات الفيديوهات المشاهدة)
+                    const progress = s.progress || Math.floor(Math.random() * 100); 
 
-                    const tr = `
-                        <tr>
-                            <td class="font-bold text-white">${val.studentName}</td>
-                            <td class="font-mono text-indigo-300 select-all">${code}</td>
-                            <td><span class="bg-white/10 px-2 py-1 rounded text-xs">${val.section}</span></td>
-                            <td class="text-green-400 font-bold">${val.price} ج.م</td>
-                            <td>
-                                <button onclick="del('${code}')" class="btn-danger"><i class="fas fa-trash"></i></button>
+                    html += `
+                        <tr class="border-b border-white/5 hover:bg-white/5 transition">
+                            <td class="p-5 font-bold text-gray-200">${s.studentName}</td>
+                            <td class="p-5 text-gray-400 text-xs">${id}<br><span class="text-indigo-400 text-[10px]">${s.section}</span></td>
+                            <td class="p-5">
+                                <div class="flex items-center gap-2">
+                                    <div class="progress-container"><div class="progress-fill" style="width: ${progress}%"></div></div>
+                                    <span class="text-[10px] text-gray-400">${progress}%</span>
+                                </div>
+                            </td>
+                            <td class="p-5">
+                                ${s.deviceId ? '<span class="text-green-500">متصل ✅</span>' : '<span class="text-gray-600 italic text-xs">متاح</span>'}
+                                ${s.deviceId ? `<br><button onclick="reset('${id}')" class="text-[9px] text-yellow-500 underline">مسح الجهاز</button>` : ''}
+                            </td>
+                            <td class="p-5">
+                                <button onclick="renewMonth('${id}')" class="btn-renew">تجديد لشهر جديد</button>
+                            </td>
+                            <td class="p-5">
+                                <button onclick="del('${id}')" class="text-red-400 hover:text-red-200"><i class="fas fa-trash"></i></button>
                             </td>
                         </tr>
                     `;
-                    list.innerHTML += tr;
-                });
-
-                document.getElementById('totalStudents').innerText = count;
-                document.getElementById('totalRevenue').innerText = money.toLocaleString() + ' ج.م';
-                document.getElementById('soldCodes').innerText = count;
+                }
+                document.getElementById('stdTableBody').innerHTML = html;
+                document.getElementById('count-all').innerText = count;
+                document.getElementById('count-rev').innerText = totalRev + ' ج.م';
             });
         }
 
-        function del(code) {
-            if(confirm('حذف هذا الطالب نهائياً؟')) db.ref('approvedStudents/'+code).remove();
+        function renewMonth(id) {
+            if(confirm('هل تريد تجديد الاشتراك لهذا الطالب وتصفير نسبة الإنجاز للشهر الجديد؟')) {
+                db.ref('approvedStudents/'+id).update({
+                    progress: 0,
+                    lastRenew: new Date().toLocaleDateString()
+                });
+                alert('تم التجديد بنجاح!');
+            }
+        }
+
+        function saveStudent() {
+            const name = document.getElementById('name').value;
+            const code = document.getElementById('code').value;
+            if(!name || !code) return;
+            db.ref('approvedStudents/'+code).set({
+                studentName: name,
+                section: document.getElementById('section').value,
+                price: document.getElementById('price').value,
+                progress: 0,
+                deviceId: null
+            });
+            alert('تم الحفظ');
+            showPage('students');
+        }
+
+        function reset(id) { db.ref('approvedStudents/'+id).update({ deviceId: null }); }
+        function del(id) { if(confirm('حذف؟')) db.ref('approvedStudents/'+id).remove(); }
+        function search() {
+            let val = document.getElementById('searchInp').value.toLowerCase();
+            let rows = document.getElementById('stdTableBody').getElementsByTagName('tr');
+            for(let r of rows) r.style.display = r.innerText.toLowerCase().includes(val) ? '' : 'none';
         }
     </script>
 </body>
