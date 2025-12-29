@@ -3,77 +3,174 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>ALPHA | Login</title>
+    <title>ALPHA | تسجيل الدخول</title>
+    
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
-    <script src="auth.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@900&family=Tajawal:wght@400;700&display=swap" rel="stylesheet">
+    <script src="auth.js"></script> <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;700;900&family=Tajawal:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
     <style>
         body {
-            background: black; height: 100vh; display: flex; align-items: center; justify-content: center;
-            background-image: radial-gradient(circle at 50% 0%, #1e1b4b, #000); color: white; font-family: 'Tajawal', sans-serif;
+            background-color: #000000;
+            background-image: 
+                radial-gradient(at 0% 0%, hsla(253,16%,7%,1) 0, transparent 50%), 
+                radial-gradient(at 50% 0%, hsla(225,39%,30%,1) 0, transparent 50%), 
+                radial-gradient(at 100% 0%, hsla(339,49%,30%,1) 0, transparent 50%);
+            color: white; font-family: 'Tajawal', sans-serif;
+            height: 100vh; display: flex; align-items: center; justify-content: center;
+            overflow: hidden; margin: 0;
         }
-        .glass-box {
-            background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.1);
-            backdrop-filter: blur(20px); padding: 40px 30px; border-radius: 24px; width: 90%; max-width: 380px; text-align: center;
+
+        /* الكارت الزجاجي */
+        .glass-card {
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 24px;
+            padding: 40px 30px;
+            width: 90%; max-width: 380px;
+            text-align: center;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            animation: slideUp 0.8s ease-out;
         }
-        .alpha-logo {
-            font-family: 'Outfit', sans-serif; font-size: 3.5rem; font-weight: 900;
-            background: linear-gradient(to right, #6366f1, #a855f7); -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
         }
-        input {
-            width: 100%; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1);
-            padding: 15px; border-radius: 12px; color: white; margin-bottom: 20px; outline: none; text-align: center; font-size: 1.2rem;
+
+        .logo-text {
+            font-family: 'Outfit', sans-serif;
+            font-size: 3rem; font-weight: 900;
+            background: linear-gradient(to right, #6366f1, #ec4899);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 5px; letter-spacing: -1px;
         }
-        input:focus { border-color: #6366f1; }
-        button {
-            width: 100%; background: linear-gradient(135deg, #6366f1, #a855f7); padding: 15px;
-            border-radius: 12px; font-weight: bold; color: white; cursor: pointer;
+
+        .input-group {
+            position: relative; margin-bottom: 20px;
         }
+        .input-field {
+            width: 100%; padding: 16px 20px 16px 50px; /* مسافة للأيقونة */
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            color: white; font-size: 1.1rem; outline: none; transition: 0.3s;
+        }
+        .input-field:focus {
+            border-color: #6366f1;
+            box-shadow: 0 0 15px rgba(99, 102, 241, 0.3);
+        }
+        .input-icon {
+            position: absolute; right: 15px; top: 50%; transform: translateY(-50%);
+            color: #64748b; font-size: 1.2rem;
+        }
+
+        .btn-primary {
+            width: 100%; padding: 16px;
+            background: linear-gradient(135deg, #6366f1 0%, #a855f7 100%);
+            border: none; border-radius: 12px;
+            color: white; font-weight: bold; font-size: 1.1rem;
+            cursor: pointer; transition: 0.3s;
+            box-shadow: 0 10px 20px rgba(99, 102, 241, 0.3);
+        }
+        .btn-primary:active { transform: scale(0.98); }
+        
+        .loader {
+            display: none; width: 24px; height: 24px; 
+            border: 3px solid #FFF; border-bottom-color: transparent; 
+            border-radius: 50%; display: inline-block; box-sizing: border-box; 
+            animation: rotation 1s linear infinite; margin-right: 10px;
+        }
+        @keyframes rotation { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
     </style>
 </head>
 <body>
-    <div class="glass-box">
-        <h1 class="alpha-logo">ALPHA</h1>
-        <p class="text-gray-400 mb-8 text-sm tracking-widest">منصة المستقبل التعليمية</p>
-        <form onsubmit="login(event)">
-            <input type="tel" id="code" placeholder="كود الطالب" required>
-            <button id="btn">دخول</button>
+
+    <div class="glass-card">
+        <div class="mb-8">
+            <h1 class="logo-text">ALPHA</h1>
+            <p class="text-gray-400 text-sm tracking-widest uppercase">E-Learning Platform</p>
+        </div>
+
+        <form id="loginForm" onsubmit="handleLogin(event)">
+            <div class="input-group">
+                <i class="fas fa-barcode input-icon"></i>
+                <input type="tel" id="code" class="input-field" placeholder="أدخل كود الطالب" required autocomplete="off">
+            </div>
+
+            <button type="submit" id="loginBtn" class="btn-primary flex items-center justify-center">
+                <span id="btnText">تسجيل الدخول</span>
+                <span id="spinner" class="loader hidden"></span>
+            </button>
         </form>
-        <p id="msg" class="text-red-500 mt-4 text-sm hidden"></p>
+
+        <div id="errorMsg" class="mt-4 text-red-400 text-sm hidden font-bold"></div>
+        
+        <p class="mt-8 text-xs text-gray-500">
+            Design by <span class="text-indigo-400">Ahmed Mohamed</span>
+        </p>
     </div>
 
     <script>
-        if(localStorage.getItem('alpha_user_code')) window.location.href = 'subjects.html';
+        // التحقق التلقائي (Auto Login)
+        if(localStorage.getItem('alpha_user_code')) {
+            window.location.href = 'subjects.html';
+        }
+
         const db = firebase.database();
 
-        async function login(e) {
+        async function handleLogin(e) {
             e.preventDefault();
-            const code = document.getElementById('code').value.trim();
-            const msg = document.getElementById('msg');
-            document.getElementById('btn').innerText = "...";
+            const codeInput = document.getElementById('code').value.trim();
+            const btn = document.getElementById('loginBtn');
+            const btnText = document.getElementById('btnText');
+            const spinner = document.getElementById('spinner');
+            const errorDiv = document.getElementById('errorMsg');
+
+            // تأثير التحميل
+            btnText.style.display = 'none';
+            spinner.style.display = 'inline-block';
+            errorDiv.classList.add('hidden');
 
             try {
-                const snap = await db.ref('approvedStudents/'+code).once('value');
-                const user = snap.val();
-                if(!user) throw "الكود غير صحيح";
-                if(user.isBlocked) throw "تم حظر الحساب";
+                // 1. البحث عن الكود في قاعدة البيانات
+                const snapshot = await db.ref('approvedStudents/' + codeInput).once('value');
+                const student = snapshot.val();
 
-                let did = localStorage.getItem('alpha_device_id');
-                if(!did) { did = 'D-'+Math.random(); localStorage.setItem('alpha_device_id', did); }
-                
-                if(user.deviceId && user.deviceId !== did) throw "الكود مستخدم على جهاز آخر";
-                if(!user.deviceId) await db.ref('approvedStudents/'+code).update({deviceId: did});
+                if (!student) throw "الكود غير صحيح، تأكد من الرقم.";
+                if (student.isBlocked) throw "عفواً، تم إيقاف هذا الحساب.";
 
-                localStorage.setItem('alpha_user_code', code);
-                window.location.href = 'subjects.html';
-            } catch(err) {
-                msg.innerText = err; msg.classList.remove('hidden');
-                document.getElementById('btn').innerText = "دخول";
+                // 2. التحقق من الجهاز (Device Fingerprint)
+                let deviceId = localStorage.getItem('alpha_device_id');
+                if (!deviceId) {
+                    deviceId = 'DEV-' + Math.random().toString(36).substr(2, 9);
+                    localStorage.setItem('alpha_device_id', deviceId);
+                }
+
+                if (student.deviceId && student.deviceId !== deviceId) {
+                    throw "هذا الكود مسجل على جهاز آخر! 📱🚫";
+                }
+
+                // 3. ربط الجهاز بالكود (لأول مرة)
+                if (!student.deviceId) {
+                    await db.ref('approvedStudents/' + codeInput).update({ deviceId: deviceId });
+                }
+
+                // 4. حفظ الكود والنجاح
+                localStorage.setItem('alpha_user_code', codeInput);
+                window.location.href = 'subjects.html'; // الانتقال للصفحة الرئيسية الجديدة
+
+            } catch (err) {
+                errorDiv.textContent = err;
+                errorDiv.classList.remove('hidden');
+                btnText.style.display = 'inline';
+                spinner.style.display = 'none';
             }
         }
     </script>
 </body>
-  </html>
-  
+</html>
