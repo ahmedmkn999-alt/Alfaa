@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>لوحة تحكم FULL MARK | الإدارة</title>
+    <title>FULL MARK | لوحة تحكم الإدارة</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
@@ -12,45 +12,68 @@
     <style>
         body { font-family: 'Cairo', sans-serif; background: #020617; color: white; min-height: 100vh; }
         .glass-card { background: rgba(15, 23, 42, 0.7); backdrop-filter: blur(20px); border: 1px solid rgba(99, 102, 241, 0.2); border-radius: 25px; }
-        .sidebar-link { transition: 0.3s; cursor: pointer; border-radius: 15px; }
-        .sidebar-link.active { background: linear-gradient(90deg, #6366f1, #d946ef); color: white; }
-        .status-badge { padding: 4px 10px; border-radius: 50px; font-size: 0.7rem; font-weight: bold; }
-        .bg-blocked { background: rgba(239, 68, 68, 0.2); color: #ef4444; border: 1px solid #ef4444; }
-        .bg-active { background: rgba(34, 197, 94, 0.2); color: #22c55e; border: 1px solid #22c55e; }
-        input, select { background: rgba(2, 6, 23, 0.6) !important; border: 1px solid rgba(99, 102, 241, 0.3) !important; color: white !important; }
+        .sidebar-link { transition: 0.3s; cursor: pointer; border-radius: 15px; margin-bottom: 5px; }
+        .sidebar-link.active { background: linear-gradient(135deg, #6366f1, #a855f7); color: white; box-shadow: 0 4px 15px rgba(99, 102, 241, 0.4); }
+        .sidebar-link:hover:not(.active) { background: rgba(255, 255, 255, 0.05); }
+        .status-badge { padding: 4px 12px; border-radius: 50px; font-size: 0.75rem; font-weight: bold; }
+        .bg-blocked { background: rgba(239, 68, 68, 0.15); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.3); }
+        .bg-active { background: rgba(34, 197, 94, 0.15); color: #4ade80; border: 1px solid rgba(34, 197, 94, 0.3); }
+        input, select { background: rgba(15, 23, 42, 0.8) !important; border: 1px solid rgba(99, 102, 241, 0.3) !important; color: white !important; transition: 0.3s; }
+        input:focus { border-color: #6366f1 !important; box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.2); }
         table { border-spacing: 0 10px; border-collapse: separate; }
-        tr { background: rgba(30, 41, 59, 0.4); }
+        tr { background: rgba(30, 41, 59, 0.4); transition: 0.3s; }
+        tr:hover { background: rgba(30, 41, 59, 0.6); }
+        .logo-text { letter-spacing: 2px; }
     </style>
 </head>
 <body>
 
     <div class="flex flex-col md:flex-row min-h-screen">
-        <aside class="w-full md:w-64 glass-card m-4 p-6 flex flex-col gap-8">
-            <div class="text-center">
-                <h1 class="text-2xl font-black text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 to-fuchsia-500">FULL MARK</h1>
-                <p class="text-[10px] text-gray-500 uppercase tracking-widest mt-1">Admin Control Center</p>
+        <aside class="w-full md:w-72 glass-card m-4 p-6 flex flex-col justify-between">
+            <div>
+                <div class="text-center mb-10">
+                    <h1 class="logo-text text-3xl font-black text-transparent bg-clip-text bg-gradient-to-br from-white via-indigo-400 to-fuchsia-500">
+                        FULL MARK
+                    </h1>
+                    <div class="h-1 w-12 bg-indigo-500 mx-auto mt-2 rounded-full"></div>
+                </div>
+                
+                <nav class="flex flex-col gap-2">
+                    <div onclick="showPage('stats')" id="link-stats" class="sidebar-link active p-4 flex items-center gap-3">
+                        <i class="fas fa-chart-line"></i> الإحصائيات العامة
+                    </div>
+                    <div onclick="showPage('add')" id="link-add" class="sidebar-link p-4 flex items-center gap-3">
+                        <i class="fas fa-plus-circle"></i> إصدار كود جديد
+                    </div>
+                    <div onclick="showPage('list')" id="link-list" class="sidebar-link p-4 flex items-center gap-3">
+                        <i class="fas fa-id-card"></i> إدارة المشتركين
+                    </div>
+                </nav>
             </div>
-            <nav class="flex flex-col gap-2">
-                <div onclick="showPage('stats')" id="link-stats" class="sidebar-link active p-4 flex items-center gap-3"><i class="fas fa-chart-pie"></i> الإحصائيات</div>
-                <div onclick="showPage('add')" id="link-add" class="sidebar-link p-4 flex items-center gap-3"><i class="fas fa-user-plus"></i> إضافة طالب</div>
-                <div onclick="showPage('list')" id="link-list" class="sidebar-link p-4 flex items-center gap-3"><i class="fas fa-users"></i> إدارة الأكواد</div>
-            </nav>
+
+            <div class="mt-auto pt-6 border-t border-white/10 text-center">
+                <p class="text-[10px] text-gray-500 tracking-[0.3em] mb-1 uppercase">Powered By</p>
+                <p class="text-lg font-bold tracking-widest text-white italic">ELGIZAWY</p>
+            </div>
         </aside>
 
         <main class="flex-1 p-4 md:p-8">
             
             <div id="page-stats" class="page-view">
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-                    <div class="glass-card p-6 border-b-4 border-indigo-500">
-                        <p class="text-gray-400 text-sm">إجمالي المشتركين</p>
+                    <div class="glass-card p-6 border-r-4 border-indigo-500 relative overflow-hidden">
+                        <i class="fas fa-users absolute -right-2 -bottom-2 text-6xl text-white/5"></i>
+                        <p class="text-gray-400 text-sm">إجمالي الطلاب</p>
                         <h2 id="total-std" class="text-4xl font-bold mt-2">0</h2>
                     </div>
-                    <div class="glass-card p-6 border-b-4 border-green-500">
-                        <p class="text-gray-400 text-sm">الأكواد النشطة</p>
+                    <div class="glass-card p-6 border-r-4 border-green-500 relative overflow-hidden">
+                        <i class="fas fa-check-circle absolute -right-2 -bottom-2 text-6xl text-white/5"></i>
+                        <p class="text-gray-400 text-sm">اشتراكات فعالة</p>
                         <h2 id="active-std" class="text-4xl font-bold mt-2 text-green-400">0</h2>
                     </div>
-                    <div class="glass-card p-6 border-b-4 border-red-500">
-                        <p class="text-gray-400 text-sm">أكواد محظورة</p>
+                    <div class="glass-card p-6 border-r-4 border-red-500 relative overflow-hidden">
+                        <i class="fas fa-user-lock absolute -right-2 -bottom-2 text-6xl text-white/5"></i>
+                        <p class="text-gray-400 text-sm">حسابات محظورة</p>
                         <h2 id="blocked-std" class="text-4xl font-bold mt-2 text-red-400">0</h2>
                     </div>
                 </div>
@@ -58,23 +81,29 @@
 
             <div id="page-add" class="page-view hidden">
                 <div class="glass-card max-w-2xl mx-auto p-8">
-                    <h2 class="text-2xl font-bold mb-6 text-center text-fuchsia-400">إصدار اشتراك جديد</h2>
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div class="flex items-center gap-4 mb-8">
+                        <div class="p-3 bg-indigo-500/20 rounded-2xl text-indigo-400">
+                            <i class="fas fa-user-plus text-2xl"></i>
+                        </div>
+                        <h2 class="text-2xl font-bold">تسجيل طالب جديد</h2>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
                         <div class="flex flex-col gap-2">
-                            <label class="text-xs text-gray-400">اسم الطالب</label>
-                            <input type="text" id="stdName" class="p-3 rounded-xl outline-none" placeholder="الاسم ثلاثي">
+                            <label class="text-xs text-gray-400 mr-2">اسم الطالب بالكامل</label>
+                            <input type="text" id="stdName" class="p-4 rounded-xl outline-none" placeholder="مثال: محمد أحمد علي">
                         </div>
                         <div class="flex flex-col gap-2">
-                            <label class="text-xs text-gray-400">الشعبة الدراسية</label>
-                            <select id="stdSection" class="p-3 rounded-xl outline-none">
+                            <label class="text-xs text-gray-400 mr-2">المسار الدراسي</label>
+                            <select id="stdSection" class="p-4 rounded-xl outline-none">
                                 <option value="علمي علوم">علمي علوم</option>
                                 <option value="علمي رياضة">علمي رياضة</option>
                                 <option value="أدبي">أدبي</option>
                             </select>
                         </div>
                         <div class="flex flex-col gap-2">
-                            <label class="text-xs text-gray-400">نوع الاشتراك</label>
-                            <select id="subType" class="p-3 rounded-xl outline-none">
+                            <label class="text-xs text-gray-400 mr-2">مدة التفعيل</label>
+                            <select id="subType" class="p-4 rounded-xl outline-none">
                                 <option value="30">اشتراك شهر (30 يوم)</option>
                                 <option value="7">تجريبي (7 أيام)</option>
                                 <option value="1">تجريبي (يوم واحد)</option>
@@ -82,28 +111,37 @@
                             </select>
                         </div>
                         <div class="flex flex-col gap-2">
-                            <label class="text-xs text-gray-400">الكود (توليد تلقائي)</label>
-                            <input type="text" id="stdCode" class="p-3 rounded-xl font-mono text-indigo-400 font-bold" readonly>
+                            <label class="text-xs text-gray-400 mr-2">كود الدخول</label>
+                            <input type="text" id="stdCode" class="p-4 rounded-xl font-mono text-indigo-400 font-bold text-center tracking-widest" readonly>
                         </div>
                     </div>
-                    <button onclick="createCode()" class="w-full mt-8 p-4 rounded-xl bg-gradient-to-r from-indigo-600 to-fuchsia-600 font-bold hover:scale-[1.02] transition">تفعيل الكود وحفظ البيانات 🚀</button>
+                    <button onclick="createCode()" class="w-full mt-8 p-4 rounded-xl bg-gradient-to-r from-indigo-600 via-purple-600 to-fuchsia-600 font-bold hover:shadow-lg hover:shadow-indigo-500/30 transition-all active:scale-95">
+                        تأكيد التفعيل وحفظ البيانات <i class="fas fa-paper-plane mr-2"></i>
+                    </button>
                 </div>
             </div>
 
             <div id="page-list" class="page-view hidden">
-                <div class="flex justify-between items-center mb-6">
-                    <h2 class="text-2xl font-bold">إدارة الأكواد والاشتراكات</h2>
-                    <input type="text" onkeyup="searchTable()" id="searchInp" class="p-2 px-4 rounded-xl text-sm w-64" placeholder="بحث باسم الطالب أو الكود...">
+                <div class="flex flex-col md:flex-row justify-between items-center gap-4 mb-6">
+                    <div>
+                        <h2 class="text-2xl font-bold">قائمة الأكواد</h2>
+                        <p class="text-sm text-gray-500">إدارة وتعديل صلاحيات الطلاب</p>
+                    </div>
+                    <div class="relative w-full md:w-80">
+                        <i class="fas fa-search absolute left-4 top-1/2 -translate-y-1/2 text-gray-500"></i>
+                        <input type="text" onkeyup="searchTable()" id="searchInp" class="p-3 pl-10 pr-4 rounded-2xl text-sm w-full" placeholder="ابحث بالاسم أو الكود...">
+                    </div>
                 </div>
+
                 <div class="overflow-x-auto">
                     <table class="w-full text-right">
                         <thead>
                             <tr class="bg-transparent text-gray-400 text-xs">
-                                <th class="p-4">اسم الطالب / الشعبة</th>
-                                <th class="p-4">الكود الحالي</th>
-                                <th class="p-4">تاريخ الانتهاء</th>
-                                <th class="p-4">الحالة</th>
-                                <th class="p-4">الإجراءات</th>
+                                <th class="p-4 font-normal text-right">معلومات الطالب</th>
+                                <th class="p-4 font-normal text-center">الكود</th>
+                                <th class="p-4 font-normal text-center">تاريخ الانتهاء</th>
+                                <th class="p-4 font-normal text-center">الحالة</th>
+                                <th class="p-4 font-normal text-center">الإجراءات</th>
                             </tr>
                         </thead>
                         <tbody id="codesTable">
@@ -116,14 +154,13 @@
     </div>
 
     <script>
-        // إعدادات Firebase
+        // Firebase Configuration
         const firebaseConfig = { databaseURL: "https://fullmark-2025-default-rtdb.firebaseio.com" };
         firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
 
-        // توليد كود عشوائي عند فتح صفحة الإضافة
         function generateCode() {
-            document.getElementById('stdCode').value = Math.floor(100000 + Math.random() * 900000);
+            document.getElementById('stdCode').value = 'FM-' + Math.floor(100000 + Math.random() * 900000);
         }
 
         function showPage(id) {
@@ -140,7 +177,7 @@
             const section = document.getElementById('stdSection').value;
             const days = parseInt(document.getElementById('subType').value);
 
-            if(!name) return alert("أدخل اسم الطالب");
+            if(!name) return alert("يرجى كتابة اسم الطالب");
 
             const expiryDate = new Date();
             expiryDate.setDate(expiryDate.getDate() + days);
@@ -154,7 +191,7 @@
                 createdAt: new Date().getTime()
             });
 
-            alert("✅ تم تفعيل الكود بنجاح: " + code);
+            alert("✅ تم إنشاء الكود بنجاح للطالب: " + name);
             document.getElementById('stdName').value = '';
             showPage('list');
         }
@@ -177,26 +214,31 @@
 
                     html += `
                         <tr class="rounded-2xl border-b border-white/5">
-                            <td class="p-4 font-bold">${s.studentName}<br><span class="text-[10px] text-indigo-400">${s.section}</span></td>
-                            <td class="p-4 font-mono text-fuchsia-400">${id}</td>
-                            <td class="p-4 text-xs ${timeLeft <= 2 ? 'text-red-400 animate-pulse' : 'text-gray-300'}">
-                                ${new Date(s.expiryDate).toLocaleDateString('ar-EG')}<br>
-                                <span>(فاضل ${timeLeft} يوم)</span>
-                            </td>
-                            <td class="p-4"><span class="status-badge ${statusClass}">${statusText}</span></td>
                             <td class="p-4">
-                                <div class="flex gap-2">
-                                    <button onclick="renew('${id}')" class="text-green-500 hover:scale-110" title="تجديد شهر"><i class="fas fa-sync-alt"></i></button>
-                                    <button onclick="toggleBlock('${id}', ${s.isBlocked})" class="${s.isBlocked ? 'text-blue-500' : 'text-orange-500'} hover:scale-110" title="حظر/إلغاء">
+                                <div class="font-bold">${s.studentName}</div>
+                                <div class="text-[10px] text-indigo-400 uppercase font-semibold">${s.section}</div>
+                            </td>
+                            <td class="p-4 text-center font-mono text-fuchsia-400 font-bold">${id}</td>
+                            <td class="p-4 text-center text-xs">
+                                <div class="${timeLeft <= 2 ? 'text-red-400 font-bold animate-pulse' : 'text-gray-300'}">
+                                    ${new Date(s.expiryDate).toLocaleDateString('ar-EG')}
+                                </div>
+                                <div class="text-[10px] text-gray-500">متبقي ${timeLeft} يوم</div>
+                            </td>
+                            <td class="p-4 text-center"><span class="status-badge ${statusClass}">${statusText}</span></td>
+                            <td class="p-4">
+                                <div class="flex justify-center gap-3">
+                                    <button onclick="renew('${id}')" class="text-green-500 hover:text-green-300 transition" title="تجديد 30 يوم"><i class="fas fa-plus-circle"></i></button>
+                                    <button onclick="toggleBlock('${id}', ${s.isBlocked})" class="${s.isBlocked ? 'text-blue-500' : 'text-orange-500'} hover:scale-110 transition" title="حظر/إلغاء">
                                         <i class="fas ${s.isBlocked ? 'fa-unlock' : 'fa-user-slash'}"></i>
                                     </button>
-                                    <button onclick="deleteCode('${id}')" class="text-red-500 hover:scale-110" title="حذف نهائي"><i class="fas fa-trash"></i></button>
+                                    <button onclick="deleteCode('${id}')" class="text-red-500 hover:text-red-300 transition" title="حذف"><i class="fas fa-trash-alt"></i></button>
                                 </div>
                             </td>
                         </tr>
                     `;
                 }
-                document.getElementById('codesTable').innerHTML = html;
+                document.getElementById('codesTable').innerHTML = html || '<tr><td colspan="5" class="text-center p-10 text-gray-500">لا يوجد بيانات لعرضها</td></tr>';
                 document.getElementById('total-std').innerText = total;
                 document.getElementById('active-std').innerText = active;
                 document.getElementById('blocked-std').innerText = blocked;
@@ -204,9 +246,10 @@
         }
 
         function renew(id) {
-            if(confirm('هل تريد تجديد الاشتراك لمدة 30 يوم إضافية؟')) {
+            if(confirm('هل أنت متأكد من تمديد الاشتراك 30 يوم إضافي؟')) {
                 db.ref('approvedStudents/'+id).once('value', snap => {
-                    let newExpiry = new Date(snap.val().expiryDate);
+                    let currentExpiry = snap.val().expiryDate;
+                    let newExpiry = (currentExpiry > new Date().getTime()) ? new Date(currentExpiry) : new Date();
                     newExpiry.setDate(newExpiry.getDate() + 30);
                     db.ref('approvedStudents/'+id).update({ expiryDate: newExpiry.getTime(), isBlocked: false });
                 });
@@ -214,14 +257,13 @@
         }
 
         function toggleBlock(id, currentStatus) {
-            const action = currentStatus ? 'إلغاء حظر' : 'حظر';
-            if(confirm(`هل تريد ${action} هذا الطالب؟`)) {
+            if(confirm(currentStatus ? 'إلغاء الحظر؟' : 'هل تريد حظر هذا الكود؟')) {
                 db.ref('approvedStudents/'+id).update({ isBlocked: !currentStatus });
             }
         }
 
         function deleteCode(id) {
-            if(confirm('سيتم حذف الطالب نهائياً، هل أنت متأكد؟')) {
+            if(confirm('حذف نهائي؟ لا يمكن التراجع عن هذه الخطوة.')) {
                 db.ref('approvedStudents/'+id).remove();
             }
         }
@@ -229,10 +271,13 @@
         function searchTable() {
             let val = document.getElementById('searchInp').value.toLowerCase();
             let rows = document.getElementById('codesTable').getElementsByTagName('tr');
-            for(let r of rows) r.style.display = r.innerText.toLowerCase().includes(val) ? '' : 'none';
+            for(let r of rows) {
+                if(r.innerText) r.style.display = r.innerText.toLowerCase().includes(val) ? '' : 'none';
+            }
         }
 
         loadData();
     </script>
 </body>
-</html>
+    </html>
+                        
