@@ -3,165 +3,152 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>المشغل | ALPHA</title>
+    <title>مشغل FULL MARK</title>
     <link rel="stylesheet" href="https://cdn.plyr.io/3.7.8/plyr.css" />
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@700;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <style>
-        /* إعدادات الشاشة الكاملة */
-        body, html { margin: 0; padding: 0; height: 100%; background: #000; overflow: hidden; font-family: 'Tajawal', sans-serif; }
+        body, html { margin: 0; padding: 0; height: 100%; background: #020617; overflow: hidden; font-family: 'Tajawal', sans-serif; }
         
-        /* حاوية الفيديو */
         .video-wrapper {
             width: 100%; height: 100vh; display: flex; align-items: center; justify-content: center;
-            position: relative;
+            position: relative; background: radial-gradient(circle at center, #1e1b4b 0%, #020617 100%);
         }
 
-        /* --- تخصيص ألوان Plyr لتناسب ALPHA --- */
+        /* --- تخصيص ألوان Plyr لـ FULL MARK --- */
         :root {
-            --plyr-color-main: #6366f1; /* لون النيون الأزرق */
-            --plyr-video-background: #000;
-            --plyr-menu-background: rgba(30, 41, 59, 0.95);
-            --plyr-menu-color: #fff;
-            --plyr-menu-border-color: rgba(255, 255, 255, 0.1);
+            --plyr-color-main: #6366f1; /* Indigo */
+            --plyr-video-background: transparent;
+            --plyr-menu-background: rgba(15, 23, 42, 0.95);
+            --plyr-menu-color: #f8fafc;
+            --plyr-menu-border-color: rgba(99, 102, 241, 0.2);
         }
 
-        /* تعديل شكل الزر الكبير */
+        /* تعديل شكل زر التشغيل الكبير */
         .plyr__control--overlaid {
-            background: rgba(99, 102, 241, 0.8) !important;
-            box-shadow: 0 0 30px rgba(99, 102, 241, 0.5);
+            background: linear-gradient(135deg, rgba(99, 102, 241, 0.9), rgba(217, 70, 239, 0.9)) !important;
+            box-shadow: 0 0 40px rgba(99, 102, 241, 0.4);
+            border: none !important;
         }
         
-        /* تعديل شريط التحميل */
+        /* شريط التقدم */
         .plyr--full-ui input[type=range] {
-            color: #d946ef !important; /* لون بينك */
+            color: #d946ef !important; /* Fuchsia */
         }
 
-        /* --- الإضافات الخاصة --- */
-        
         /* زر الرجوع العائم */
         .back-btn {
             position: absolute; top: 20px; right: 20px; z-index: 50;
-            width: 45px; height: 45px; border-radius: 50%;
-            background: rgba(0, 0, 0, 0.5); color: white;
+            width: 45px; height: 45px; border-radius: 15px;
+            background: rgba(15, 23, 42, 0.6); color: white;
             display: flex; align-items: center; justify-content: center;
-            border: 1px solid rgba(255,255,255,0.1); backdrop-filter: blur(5px);
-            cursor: pointer; transition: 0.3s;
+            border: 1px solid rgba(255,255,255,0.1); backdrop-filter: blur(10px);
+            cursor: pointer; transition: 0.4s;
         }
-        .back-btn:hover { background: #6366f1; transform: scale(1.1); }
+        .back-btn:hover { background: #6366f1; transform: scale(1.1) rotate(5deg); box-shadow: 0 10px 20px rgba(99, 102, 241, 0.3); }
 
-        /* العلامة المائية (Watermark) */
-        .alpha-watermark {
-            position: absolute; top: 20px; left: 20px; z-index: 40;
-            opacity: 0.7; pointer-events: none;
-            display: flex; align-items: center; gap: 5px;
+        /* العلامة المائية */
+        .fullmark-watermark {
+            position: absolute; top: 25px; left: 25px; z-index: 40;
+            opacity: 0.8; pointer-events: none;
+            display: flex; flex-direction: column; align-items: flex-start;
         }
         .logo-text {
-            font-weight: 900; font-size: 1.2rem;
-            background: linear-gradient(to right, #6366f1, #d946ef);
+            font-weight: 900; font-size: 1.4rem;
+            background: linear-gradient(to right, #fff, #6366f1, #d946ef);
             -webkit-background-clip: text; -webkit-text-fill-color: transparent;
             text-shadow: 0 0 20px rgba(99, 102, 241, 0.5);
+            letter-spacing: -1px;
+        }
+        .dev-tag {
+            font-size: 0.6rem; color: #6366f1; font-weight: 800; 
+            letter-spacing: 2px; text-transform: uppercase; margin-top: -5px;
         }
 
-        /* طبقة اللمس المزدوج (Double Tap Zones) */
+        /* مناطق اللمس المزدوج */
         .dt-zone {
-            position: absolute; top: 0; bottom: 0; width: 30%; z-index: 10;
+            position: absolute; top: 0; bottom: 0; width: 35%; z-index: 10;
             display: flex; align-items: center; justify-content: center;
-            font-size: 1.5rem; font-weight: bold; color: rgba(255,255,255,0.8);
-            opacity: 0; transition: opacity 0.3s; pointer-events: auto;
+            opacity: 0; transition: 0.3s; pointer-events: auto;
         }
-        .dt-left { left: 0; background: linear-gradient(90deg, rgba(0,0,0,0.4), transparent); }
-        .dt-right { right: 0; background: linear-gradient(-90deg, rgba(0,0,0,0.4), transparent); }
+        .dt-left { left: 0; }
+        .dt-right { right: 0; }
         
-        /* أيقونة اللمس */
         .tap-icon { 
-            background: rgba(0,0,0,0.6); padding: 15px; border-radius: 50%;
-            backdrop-filter: blur(5px); display: flex; flex-direction: column; align-items: center;
+            background: rgba(99, 102, 241, 0.2); padding: 20px; border-radius: 50%;
+            backdrop-filter: blur(8px); display: flex; flex-direction: column; 
+            align-items: center; border: 1px solid rgba(99, 102, 241, 0.3);
+            color: white;
         }
-        .tap-text { font-size: 0.8rem; margin-top: 5px; }
+        .tap-text { font-size: 0.75rem; font-weight: bold; margin-top: 5px; }
 
     </style>
 </head>
 <body>
 
-    <div onclick="history.back()" class="back-btn">
-        <i class="fas fa-arrow-right text-lg"></i>
+    <div onclick="history.back()" class="back-btn" title="رجوع">
+        <i class="fas fa-arrow-right"></i>
     </div>
 
-    <div class="alpha-watermark">
-        <i class="fas fa-play-circle text-indigo-500 text-xl"></i>
-        <span class="logo-text">ALPHA</span>
+    <div class="fullmark-watermark">
+        <span class="logo-text">FULL MARK</span>
+        <span class="dev-tag">By ELGIZAWY</span>
     </div>
 
     <div class="video-wrapper">
-        <video id="player" playsinline controls data-poster="https://via.placeholder.com/1920x1080/000000/FFFFFF?text=ALPHA+Player">
-            </video>
+        <video id="player" playsinline controls data-poster="https://via.placeholder.com/1920x1080/020617/6366f1?text=FULL+MARK+PLAYER">
+        </video>
 
         <div id="tapLeft" class="dt-zone dt-left">
-            <div class="tap-icon"><i class="fas fa-backward"></i><span class="tap-text">10s</span></div>
+            <div class="tap-icon"><i class="fas fa-backward text-2xl"></i><span class="tap-text">10s</span></div>
         </div>
         <div id="tapRight" class="dt-zone dt-right">
-            <div class="tap-icon"><i class="fas fa-forward"></i><span class="tap-text">10s</span></div>
+            <div class="tap-icon"><i class="fas fa-forward text-2xl"></i><span class="tap-text">10s</span></div>
         </div>
     </div>
 
     <script src="https://cdn.plyr.io/3.7.8/plyr.js"></script>
     <script>
         const vData = JSON.parse(localStorage.getItem('currentVideo'));
-        const videoEl = document.getElementById('player');
+        const wrapper = document.querySelector('.video-wrapper');
 
         if (vData) {
             let src = vData.stream_url || vData.link || vData.url || vData.video_url;
 
-            // ✅ دعم يوتيوب الذكي
+            // التحقق من يوتيوب
             if (src.includes('youtube') || src.includes('youtu.be')) {
-                // تحويل الفيديو لنظام Embed المتوافق
                 let embedId = src.split('v=')[1] || src.split('/').pop();
                 const ampIndex = embedId.indexOf('&');
                 if(ampIndex !== -1) embedId = embedId.substring(0, ampIndex);
 
-                document.querySelector('.video-wrapper').innerHTML = `
+                wrapper.innerHTML = `
                     <div id="player" data-plyr-provider="youtube" data-plyr-embed-id="${embedId}"></div>
                     <div id="tapLeft" class="dt-zone dt-left"><div class="tap-icon"><i class="fas fa-backward"></i><span class="tap-text">10s</span></div></div>
                     <div id="tapRight" class="dt-zone dt-right"><div class="tap-icon"><i class="fas fa-forward"></i><span class="tap-text">10s</span></div></div>
                 `;
             } else {
-                // فيديو عادي (MP4)
-                videoEl.src = src;
+                document.getElementById('player').src = src;
             }
 
-            // ⚙️ إعدادات المشغل (نفس يوتيوب)
+            // إعداد المشغل
             const player = new Plyr('#player', {
-                controls: [
-                    'play-large', // الزر الكبير في النص
-                    'play', // زر التشغيل تحت
-                    'progress', // شريط الوقت
-                    'current-time', // الوقت الحالي
-                    'duration', // الوقت الكلي
-                    'mute', // كتم الصوت
-                    'volume', // مستوى الصوت
-                    'settings', // الترس
-                    'pip', // صورة داخل صورة
-                    'fullscreen' // التكبير
-                ],
-                settings: ['quality', 'speed', 'loop'],
-                speed: { selected: 1, options: [0.5, 0.75, 1, 1.25, 1.5, 1.75, 2] },
-                quality: { default: 720, options: [4320, 2880, 2160, 1440, 1080, 720, 576, 480, 360, 240] },
-                keyboard: { focused: true, global: true }, // تفعيل الكيبورد
-                tooltips: { controls: true, seek: true }, // إظهار تلميحات
-                i18n: { speed: 'سرعة التشغيل', quality: 'الجودة', settings: 'الإعدادات' } // تعريب
+                controls: ['play-large', 'play', 'progress', 'current-time', 'duration', 'mute', 'volume', 'settings', 'pip', 'fullscreen'],
+                settings: ['quality', 'speed'],
+                speed: { selected: 1, options: [0.5, 1, 1.25, 1.5, 2] },
+                tooltips: { controls: true, seek: true },
+                i18n: { speed: 'السرعة', quality: 'الجودة', settings: 'الإعدادات' }
             });
 
-            // 📱 كود اللمس المزدوج (Double Tap to Seek)
+            // نظام اللمس المزدوج (Double Tap)
             const tapLeft = document.getElementById('tapLeft');
             const tapRight = document.getElementById('tapRight');
             let lastTap = 0;
 
             function handleDoubleTap(direction) {
-                const now = new Date().getTime();
-                if (now - lastTap < 400) { // لو الضغطتين بينهم أقل من 400ms
+                const now = Date.now();
+                if (now - lastTap < 350) {
                     if(direction === 'forward') {
                         player.forward(10);
                         showEffect(tapRight);
@@ -175,14 +162,14 @@
 
             function showEffect(el) {
                 el.style.opacity = '1';
-                setTimeout(() => el.style.opacity = '0', 600);
+                setTimeout(() => el.style.opacity = '0', 500);
             }
 
             tapRight.addEventListener('click', () => handleDoubleTap('forward'));
             tapLeft.addEventListener('click', () => handleDoubleTap('backward'));
 
         } else {
-            alert("خطأ: لا يوجد مصدر للفيديو!");
+            alert("المصدر غير متوفر");
             history.back();
         }
     </script>
