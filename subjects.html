@@ -9,17 +9,17 @@
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
     <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
     <script src="auth.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
     <style>
         body { background-color: #020617; color: white; font-family: 'Tajawal', sans-serif; min-height: 100vh; padding-bottom: 80px; overflow-x: hidden; }
-        .bg-space { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; background: radial-gradient(circle at 50% 0%, #1e1b4b, #020617 70%); }
+        .bg-space { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; background: radial-gradient(circle at 50% 0%, #1e1b4b, #020617 75%); }
         
         /* الهيدر المحسن */
         .header { 
-            background: rgba(15, 23, 42, 0.6); 
-            backdrop-filter: blur(20px); 
+            background: rgba(15, 23, 42, 0.7); 
+            backdrop-filter: blur(25px); 
             padding: 20px; 
             border-bottom: 1px solid rgba(99, 102, 241, 0.2); 
             border-radius: 0 0 35px 35px; 
@@ -27,69 +27,65 @@
             display: flex; 
             justify-content: space-between; 
             align-items: center;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
         }
-        
-        .typing-box { font-size: 0.85rem; color: #a855f7; height: 20px; margin-top: 4px; font-weight: bold; }
 
-        /* كروت المواد بنمط FULL MARK */
+        /* كروت المواد الاحترافية */
         .subject-card {
             background: rgba(30, 41, 59, 0.4);
-            border: 1px solid rgba(99, 102, 241, 0.1);
-            backdrop-filter: blur(10px);
-            border-radius: 32px; 
-            padding: 20px;
+            border: 1px solid rgba(99, 102, 241, 0.15);
+            backdrop-filter: blur(15px);
+            border-radius: 35px; 
+            padding: 25px 15px;
             text-align: center; 
-            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
             cursor: pointer; 
             position: relative; 
             overflow: hidden;
             display: flex; 
             flex-direction: column; 
-            align-items: center; 
-            justify-content: center;
-            min-height: 220px;
+            align-items: center;
+            height: 240px;
         }
 
         .subject-card:hover {
-            transform: translateY(-12px);
+            transform: translateY(-15px) scale(1.02);
             border-color: #6366f1;
             background: rgba(30, 41, 59, 0.6);
-            box-shadow: 0 25px 50px -12px rgba(99, 102, 241, 0.3);
+            box-shadow: 0 25px 50px -12px rgba(99, 102, 241, 0.4);
         }
 
         .s-img-container {
-            width: 100px; height: 100px; margin-bottom: 15px;
+            width: 110px; height: 110px; margin-bottom: 15px;
             display: flex; align-items: center; justify-content: center;
-            position: relative;
+            position: relative; z-index: 2;
         }
 
-        /* توهج خلف الصورة */
-        .s-img-container::after {
-            content: ''; position: absolute; width: 60%; height: 60%;
-            background: #6366f1; filter: blur(35px); opacity: 0.2; z-index: -1;
+        /* تأثير التوهج خلف الصورة */
+        .s-glow {
+            position: absolute; width: 70px; height: 70px;
+            background: #6366f1; filter: blur(40px); opacity: 0.3; z-index: -1;
+            transition: 0.5s;
         }
+        .subject-card:hover .s-glow { opacity: 0.6; transform: scale(1.5); }
 
         .s-img {
             width: 100%; height: 100%; object-fit: contain;
-            filter: drop-shadow(0 15px 20px rgba(0,0,0,0.4));
-            transition: 0.5s;
+            filter: drop-shadow(0 15px 25px rgba(0,0,0,0.5));
+            transition: 0.5s ease-in-out;
+        }
+        .subject-card:hover .s-img { transform: scale(1.2) rotate(8deg); }
+
+        .s-title { font-size: 1.4rem; font-weight: 900; color: #fff; margin-bottom: 8px; letter-spacing: -0.5px; }
+        
+        .s-count-badge { 
+            font-size: 0.75rem; color: #c7d2fe; 
+            background: rgba(99, 102, 241, 0.2); 
+            padding: 5px 15px; border-radius: 50px; 
+            border: 1px solid rgba(99, 102, 241, 0.3);
+            font-weight: 700;
         }
 
-        .subject-card:hover .s-img { transform: scale(1.2) rotate(-5deg); }
-
-        .s-title { font-size: 1.3rem; font-weight: 800; color: #fff; margin-bottom: 6px; }
-        .s-count { 
-            font-size: 0.7rem; color: #c7d2fe; 
-            background: rgba(99, 102, 241, 0.15); 
-            padding: 4px 12px; border-radius: 50px; 
-            border: 1px solid rgba(99, 102, 241, 0.2);
-        }
-
-        .branding-text {
-            position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%);
-            font-size: 0.65rem; letter-spacing: 4px; color: #475569; font-weight: 900; text-transform: uppercase;
-        }
+        .typing-box { font-size: 0.85rem; color: #a855f7; height: 20px; font-weight: 800; display: flex; align-items: center; gap: 5px; }
     </style>
 </head>
 <body>
@@ -105,58 +101,59 @@
                 </div>
                 <div>
                     <h2 class="font-black text-xl text-white" id="sName">جاري التحميل...</h2>
-                    <div class="typing-box"><i class="fas fa-magic ml-1 text-[10px]"></i> <span class="typing-text"></span></div>
+                    <div class="typing-box"><i class="fas fa-sparkles text-xs"></i> <span class="typing-text"></span></div>
                 </div>
             </div>
-            <button onclick="logout()" class="w-12 h-12 flex items-center justify-center rounded-2xl bg-red-500/10 text-red-500 hover:bg-red-500 hover:text-white transition-all">
+            <button onclick="logout()" class="w-12 h-12 flex items-center justify-center rounded-2xl bg-red-500/10 text-red-500 hover:bg-red-500 hover:text-white transition-all shadow-lg">
                 <i class="fas fa-power-off text-xl"></i>
             </button>
         </header>
 
         <div class="px-6">
-            <div class="mb-8">
-                <h1 class="text-3xl font-black text-transparent bg-clip-text bg-gradient-to-l from-white to-indigo-400">نظام FULL MARK</h1>
-                <p class="text-gray-500 text-sm mt-1">اختر المادة الدراسية لفتح المحاضرات</p>
+            <div class="mb-10 text-center">
+                <h1 class="text-4xl font-black text-transparent bg-clip-text bg-gradient-to-l from-white via-indigo-200 to-indigo-500 mb-2">نظام FULL MARK</h1>
+                <p class="text-gray-400 text-sm font-bold uppercase tracking-widest">اختر مادتك للبدء في التفوق</p>
             </div>
             
-            <div v-if="loading" class="grid grid-cols-2 gap-5">
-                <div v-for="i in 4" class="subject-card animate-pulse bg-white/5"></div>
+            <div v-if="loading" class="grid grid-cols-2 gap-6">
+                <div v-for="i in 4" class="subject-card animate-pulse"></div>
             </div>
 
-            <div v-else class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5">
+            <div v-else class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
                 <div v-for="s in subjects" :key="s.id" @click="go(s)" class="subject-card group">
                     <div class="s-img-container">
-                        <img :src="getImg(s.name)" class="s-img" onerror="this.src='https://cdn3d.iconscout.com/3d/premium/thumb/education-4940505-4116480.png'">
+                        <div class="s-glow"></div>
+                        <img :src="getImg(s.name)" class="s-img" onerror="this.src='https://cdn3d.iconscout.com/3d/premium/thumb/book-5110435-4256920.png'">
                     </div>
-                    <h3 class="s-title group-hover:text-indigo-400 transition-colors">{{ s.name }}</h3>
-                    <span class="s-count">{{ s.teachers?.length || 0 }} معلمين</span>
+                    <h3 class="s-title">{{ s.name }}</h3>
+                    <div class="s-count-badge">
+                        <i class="fas fa-user-tie ml-1 text-[10px]"></i>
+                        {{ s.teachers?.length || 0 }} معلمين
+                    </div>
                 </div>
             </div>
         </div>
 
-        <div class="branding-text">
+        <div class="fixed bottom-6 left-0 w-full text-center opacity-40 font-black text-[10px] tracking-[5px] text-indigo-400">
             ELGIZAWY • DEVELOPMENT
         </div>
     </div>
 
     <script>
+        // دمج صور 3D احترافية لكل مادة
         const IMAGES_DB = {
-            "فيزيا": "https://cdn3d.iconscout.com/3d/premium/thumb/physics-7265691-5840333.png",
-            "كيميا": "https://cdn3d.iconscout.com/3d/premium/thumb/chemistry-atoms-5691557-4740112.png",
-            "أحيا": "https://cdn3d.iconscout.com/3d/premium/thumb/dna-5256241-4385108.png",
-            "عرب": "https://cdn3d.iconscout.com/3d/premium/thumb/ramadan-quran-5136006-4286786.png",
-            "نجليز": "https://cdn3d.iconscout.com/3d/premium/thumb/english-book-10041135-8135359.png",
-            "رياض": "https://cdn3d.iconscout.com/3d/premium/thumb/mathematics-9173295-7489437.png",
+            "فيزياء": "https://cdn3d.iconscout.com/3d/premium/thumb/physics-7265691-5840333.png",
+            "كيمياء": "https://cdn3d.iconscout.com/3d/premium/thumb/chemistry-atoms-5691557-4740112.png",
+            "أحياء": "https://cdn3d.iconscout.com/3d/premium/thumb/dna-5256241-4385108.png",
+            "لغة عربية": "https://cdn3d.iconscout.com/3d/premium/thumb/ramadan-quran-5136006-4286786.png",
+            "English": "https://cdn3d.iconscout.com/3d/premium/thumb/english-book-10041135-8135359.png",
+            "رياضيات": "https://cdn3d.iconscout.com/3d/premium/thumb/mathematics-9173295-7489437.png",
             "تاريخ": "https://cdn3d.iconscout.com/3d/premium/thumb/pharaoh-6450376-5310636.png",
-            "جغرافي": "https://cdn3d.iconscout.com/3d/premium/thumb/earth-5134701-4282715.png",
-            "فرنس": "https://cdn3d.iconscout.com/3d/premium/thumb/eiffel-tower-5374026-4491752.png",
-            "فلسف": "https://cdn3d.iconscout.com/3d/premium/thumb/thought-5285141-4414349.png",
-            "نفس": "https://cdn3d.iconscout.com/3d/premium/thumb/psychology-9860472-8012170.png",
-            "ألماني": "https://cdn3d.iconscout.com/3d/premium/thumb/german-flag-9920119-8106880.png",
+            "جغرافيا": "https://cdn3d.iconscout.com/3d/premium/thumb/earth-5134701-4282715.png",
             "default": "https://cdn3d.iconscout.com/3d/premium/thumb/education-4940505-4116480.png"
         };
 
-        const phrases = ["🚀 عافر حلمك يستاهل", "✨ أنت قدها يا بطل", "🎓 دكتور المستقبل", "💪 طريقك للـ FULL MARK"];
+        const phrases = ["🚀 حلمك يستاهل تعبك", "✨ أنت قد المسؤولية", "🎓 بطل الـ Full Mark", "💪 طريقك للقمة يبدأ هنا"];
         let pIdx = 0, cIdx = 0, isDel = false;
 
         function type() {
@@ -177,14 +174,11 @@
                 const yid = ref(null);
 
                 const getImg = (n) => {
-                    for(let key in IMAGES_DB) if(n.includes(key)) return IMAGES_DB[key];
+                    for(let key in IMAGES_DB) if(n.toLowerCase().includes(key.toLowerCase())) return IMAGES_DB[key];
                     return IMAGES_DB['default'];
                 };
 
-                const logout = () => {
-                    localStorage.removeItem('alpha_user_code');
-                    window.location.href = 'login.html';
-                };
+                const logout = () => { localStorage.removeItem('alpha_user_code'); window.location.href = 'login.html'; };
 
                 onMounted(async () => {
                     type();
@@ -195,15 +189,9 @@
                         const user = userSnap.val();
                         document.getElementById('sName').innerText = user.studentName;
 
-                        const URLS = { 
-                            'علمي علوم': "https://plus-teal.vercel.app/organized_output.json", 
-                            'أدبي': "https://plus-teal.vercel.app/organized_output-a.json", 
-                            'علمي رياضة': "https://platform-sigma-seven.vercel.app/organized_output-e.json" 
-                        };
-                        
+                        const URLS = { 'علمي علوم': "https://plus-teal.vercel.app/organized_output.json", 'أدبي': "https://plus-teal.vercel.app/organized_output-a.json", 'علمي رياضة': "https://platform-sigma-seven.vercel.app/organized_output-e.json" };
                         const res = await fetch(URLS[user.section] || URLS['علمي علوم']);
                         const data = await res.json();
-                        // نختار السنة الدراسية المناسبة (3 تعني تالته ثانوي مثلاً)
                         let year = data.find(y => y.id == 3) || data[0];
                         yid.value = year.id;
                         subjects.value = year.subjects;
