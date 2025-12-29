@@ -3,208 +3,236 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ALPHA ADMIN | إدارة المنصة</title>
+    <title>لوحة تحكم FULL MARK | الإدارة</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        body { font-family: 'Tajawal', sans-serif; background: #080c14; color: white; min-height: 100vh; }
-        
-        /* التعديل للموبايل: القائمة الجانبية */
-        .sidebar { 
-            position: fixed; bottom: 0; left: 0; width: 100%; height: 65px; 
-            background: #0f172a; border-top: 1px solid rgba(255,255,255,0.1); 
-            display: flex; justify-content: space-around; align-items: center; z-index: 100;
-        }
-        
-        @media (min-width: 768px) {
-            .sidebar { top: 0; right: 0; width: 260px; height: 100vh; flex-direction: column; border-top: none; border-left: 1px solid rgba(255,255,255,0.05); justify-content: start; }
-            .main-content { margin-right: 260px; }
-        }
-
-        .nav-link { display: flex; flex-direction: column; align-items: center; color: #94a3b8; font-size: 0.7rem; gap: 4px; transition: 0.3s; }
-        .nav-link.active { color: #6366f1; }
-        
-        @media (min-width: 768px) {
-            .nav-link { flex-direction: row; padding: 15px 25px; width: 100%; font-size: 1rem; gap: 12px; border-right: 4px solid transparent; }
-            .nav-link.active { background: rgba(99, 102, 241, 0.1); border-right-color: #6366f1; }
-        }
-
-        .main-content { padding: 20px; padding-bottom: 100px; }
-        .glass-card { background: rgba(30, 41, 59, 0.5); border: 1px solid rgba(255,255,255,0.05); border-radius: 20px; padding: 15px; }
-        
-        /* تحسين الجداول للموبايل */
-        .table-container { overflow-x: auto; -webkit-overflow-scrolling: touch; }
-        table { min-width: 600px; }
-
-        #loginArea { position: fixed; inset: 0; background: #080c14; z-index: 200; display: flex; align-items: center; justify-content: center; padding: 20px; }
+        body { font-family: 'Cairo', sans-serif; background: #020617; color: white; min-height: 100vh; }
+        .glass-card { background: rgba(15, 23, 42, 0.7); backdrop-filter: blur(20px); border: 1px solid rgba(99, 102, 241, 0.2); border-radius: 25px; }
+        .sidebar-link { transition: 0.3s; cursor: pointer; border-radius: 15px; }
+        .sidebar-link.active { background: linear-gradient(90deg, #6366f1, #d946ef); color: white; }
+        .status-badge { padding: 4px 10px; border-radius: 50px; font-size: 0.7rem; font-weight: bold; }
+        .bg-blocked { background: rgba(239, 68, 68, 0.2); color: #ef4444; border: 1px solid #ef4444; }
+        .bg-active { background: rgba(34, 197, 94, 0.2); color: #22c55e; border: 1px solid #22c55e; }
+        input, select { background: rgba(2, 6, 23, 0.6) !important; border: 1px solid rgba(99, 102, 241, 0.3) !important; color: white !important; }
+        table { border-spacing: 0 10px; border-collapse: separate; }
+        tr { background: rgba(30, 41, 59, 0.4); }
     </style>
 </head>
 <body>
 
-    <div id="loginArea">
-        <div class="glass-card w-full max-w-md text-center">
-            <h2 class="text-2xl font-bold mb-6 text-indigo-400">دخول الإدارة</h2>
-            <input type="password" id="adminPass" class="w-full p-4 rounded-xl bg-slate-800 border border-slate-700 mb-4 text-center outline-none focus:border-indigo-500" placeholder="كلمة المرور">
-            <button onclick="checkPass()" class="w-full bg-indigo-600 p-4 rounded-xl font-bold hover:bg-indigo-700 transition">دخول النظام</button>
-        </div>
-    </div>
-
-    <div class="sidebar" id="mainSidebar" style="display: none;">
-        <div class="hidden md:block p-8 text-2xl font-black text-white border-b border-white/5 w-full">ALPHA <span class="text-indigo-500">.</span></div>
-        <nav class="flex md:flex-col items-center md:items-start w-full md:mt-6">
-            <div class="nav-link active flex-1 md:flex-none" onclick="showPage('stats', this)"><i class="fas fa-chart-pie md:text-xl"></i><span>الإحصائيات</span></div>
-            <div class="nav-link flex-1 md:flex-none" onclick="showPage('students', this)"><i class="fas fa-users md:text-xl"></i><span>الطلاب</span></div>
-            <div class="nav-link flex-1 md:flex-none" onclick="showPage('add', this)"><i class="fas fa-plus-circle md:text-xl"></i><span>إضافة</span></div>
-        </nav>
-    </div>
-
-    <main class="main-content" id="contentArea" style="display: none;">
-        
-        <div id="page-stats" class="page-view">
-            <h1 class="text-2xl font-bold mb-6">نظرة عامة</h1>
-            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
-                <div class="glass-card text-center sm:text-right">
-                    <p class="text-gray-400 text-xs">إجمالي الأكواد</p>
-                    <h2 id="count-all" class="text-3xl font-black mt-1">0</h2>
-                </div>
-                <div class="glass-card text-center sm:text-right">
-                    <p class="text-gray-400 text-xs">الأرباح (ج.م)</p>
-                    <h2 id="count-rev" class="text-3xl font-black mt-1 text-green-400">0</h2>
-                </div>
-                <div class="glass-card text-center sm:text-right">
-                    <p class="text-gray-400 text-xs">حالة النظام</p>
-                    <h2 class="text-lg font-bold mt-1 text-indigo-400">نشط الآن ✅</h2>
-                </div>
+    <div class="flex flex-col md:flex-row min-h-screen">
+        <aside class="w-full md:w-64 glass-card m-4 p-6 flex flex-col gap-8">
+            <div class="text-center">
+                <h1 class="text-2xl font-black text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 to-fuchsia-500">FULL MARK</h1>
+                <p class="text-[10px] text-gray-500 uppercase tracking-widest mt-1">Admin Control Center</p>
             </div>
-        </div>
+            <nav class="flex flex-col gap-2">
+                <div onclick="showPage('stats')" id="link-stats" class="sidebar-link active p-4 flex items-center gap-3"><i class="fas fa-chart-pie"></i> الإحصائيات</div>
+                <div onclick="showPage('add')" id="link-add" class="sidebar-link p-4 flex items-center gap-3"><i class="fas fa-user-plus"></i> إضافة طالب</div>
+                <div onclick="showPage('list')" id="link-list" class="sidebar-link p-4 flex items-center gap-3"><i class="fas fa-users"></i> إدارة الأكواد</div>
+            </nav>
+        </aside>
 
-        <div id="page-students" class="page-view hidden">
-            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
-                <h1 class="text-2xl font-bold">قائمة الطلاب</h1>
-                <input type="text" onkeyup="search()" id="searchInp" placeholder="ابحث باسم الطالب..." class="bg-slate-800 border-none rounded-xl px-4 py-2 w-full sm:w-64 text-sm">
-            </div>
+        <main class="flex-1 p-4 md:p-8">
             
-            <div class="glass-card p-0 overflow-hidden">
-                <div class="table-container">
+            <div id="page-stats" class="page-view">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                    <div class="glass-card p-6 border-b-4 border-indigo-500">
+                        <p class="text-gray-400 text-sm">إجمالي المشتركين</p>
+                        <h2 id="total-std" class="text-4xl font-bold mt-2">0</h2>
+                    </div>
+                    <div class="glass-card p-6 border-b-4 border-green-500">
+                        <p class="text-gray-400 text-sm">الأكواد النشطة</p>
+                        <h2 id="active-std" class="text-4xl font-bold mt-2 text-green-400">0</h2>
+                    </div>
+                    <div class="glass-card p-6 border-b-4 border-red-500">
+                        <p class="text-gray-400 text-sm">أكواد محظورة</p>
+                        <h2 id="blocked-std" class="text-4xl font-bold mt-2 text-red-400">0</h2>
+                    </div>
+                </div>
+            </div>
+
+            <div id="page-add" class="page-view hidden">
+                <div class="glass-card max-w-2xl mx-auto p-8">
+                    <h2 class="text-2xl font-bold mb-6 text-center text-fuchsia-400">إصدار اشتراك جديد</h2>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div class="flex flex-col gap-2">
+                            <label class="text-xs text-gray-400">اسم الطالب</label>
+                            <input type="text" id="stdName" class="p-3 rounded-xl outline-none" placeholder="الاسم ثلاثي">
+                        </div>
+                        <div class="flex flex-col gap-2">
+                            <label class="text-xs text-gray-400">الشعبة الدراسية</label>
+                            <select id="stdSection" class="p-3 rounded-xl outline-none">
+                                <option value="علمي علوم">علمي علوم</option>
+                                <option value="علمي رياضة">علمي رياضة</option>
+                                <option value="أدبي">أدبي</option>
+                            </select>
+                        </div>
+                        <div class="flex flex-col gap-2">
+                            <label class="text-xs text-gray-400">نوع الاشتراك</label>
+                            <select id="subType" class="p-3 rounded-xl outline-none">
+                                <option value="30">اشتراك شهر (30 يوم)</option>
+                                <option value="7">تجريبي (7 أيام)</option>
+                                <option value="1">تجريبي (يوم واحد)</option>
+                                <option value="365">سنوي (عام كامل)</option>
+                            </select>
+                        </div>
+                        <div class="flex flex-col gap-2">
+                            <label class="text-xs text-gray-400">الكود (توليد تلقائي)</label>
+                            <input type="text" id="stdCode" class="p-3 rounded-xl font-mono text-indigo-400 font-bold" readonly>
+                        </div>
+                    </div>
+                    <button onclick="createCode()" class="w-full mt-8 p-4 rounded-xl bg-gradient-to-r from-indigo-600 to-fuchsia-600 font-bold hover:scale-[1.02] transition">تفعيل الكود وحفظ البيانات 🚀</button>
+                </div>
+            </div>
+
+            <div id="page-list" class="page-view hidden">
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-2xl font-bold">إدارة الأكواد والاشتراكات</h2>
+                    <input type="text" onkeyup="searchTable()" id="searchInp" class="p-2 px-4 rounded-xl text-sm w-64" placeholder="بحث باسم الطالب أو الكود...">
+                </div>
+                <div class="overflow-x-auto">
                     <table class="w-full text-right">
-                        <thead class="bg-white/5 text-gray-400 text-[10px] uppercase">
-                            <tr>
-                                <th class="p-4">اسم الطالب</th>
-                                <th class="p-4">الكود / الشعبة</th>
-                                <th class="p-4">الجهاز</th>
-                                <th class="p-4">تجديد</th>
-                                <th class="p-4">إجراء</th>
+                        <thead>
+                            <tr class="bg-transparent text-gray-400 text-xs">
+                                <th class="p-4">اسم الطالب / الشعبة</th>
+                                <th class="p-4">الكود الحالي</th>
+                                <th class="p-4">تاريخ الانتهاء</th>
+                                <th class="p-4">الحالة</th>
+                                <th class="p-4">الإجراءات</th>
                             </tr>
                         </thead>
-                        <tbody id="stdTableBody" class="text-xs">
+                        <tbody id="codesTable">
                             </tbody>
                     </table>
                 </div>
             </div>
-        </div>
 
-        <div id="page-add" class="page-view hidden">
-            <h1 class="text-2xl font-bold mb-6">إضافة كود جديد</h1>
-            <div class="glass-card max-w-lg mx-auto space-y-4">
-                <input type="text" id="name" placeholder="اسم الطالب بالكامل" class="w-full p-4 rounded-xl bg-slate-800 border-none">
-                <input type="text" id="code" placeholder="رقم الكود (6 أرقام)" class="w-full p-4 rounded-xl bg-slate-800 border-none">
-                <select id="section" class="w-full p-4 rounded-xl bg-slate-800 border-none">
-                    <option value="علمي علوم">علمي علوم</option>
-                    <option value="علمي رياضة">علمي رياضة</option>
-                    <option value="أدبي">أدبي</option>
-                </select>
-                <input type="number" id="price" placeholder="المبلغ المدفوع" class="w-full p-4 rounded-xl bg-slate-800 border-none">
-                <button onclick="saveStudent()" class="w-full bg-indigo-600 p-4 rounded-xl font-bold">تفعيل الطالب الآن</button>
-            </div>
-        </div>
-
-    </main>
+        </main>
+    </div>
 
     <script>
         // إعدادات Firebase
-        const firebaseConfig = { databaseURL: "https://v-p-n-780c1-default-rtdb.firebaseio.com" };
+        const firebaseConfig = { databaseURL: "https://fullmark-2025-default-rtdb.firebaseio.com" };
         firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
 
-        function checkPass() {
-            if(document.getElementById('adminPass').value === 'ahmedmo12345') {
-                document.getElementById('loginArea').style.display = 'none';
-                document.getElementById('mainSidebar').style.display = 'flex';
-                document.getElementById('contentArea').style.display = 'block';
-                loadData();
-            } else { alert('خطأ في كلمة المرور'); }
+        // توليد كود عشوائي عند فتح صفحة الإضافة
+        function generateCode() {
+            document.getElementById('stdCode').value = Math.floor(100000 + Math.random() * 900000);
         }
 
-        function showPage(pageId, el) {
+        function showPage(id) {
             document.querySelectorAll('.page-view').forEach(p => p.classList.add('hidden'));
-            document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
-            document.getElementById('page-' + pageId).classList.remove('hidden');
-            el.classList.add('active');
+            document.querySelectorAll('.sidebar-link').forEach(l => l.classList.remove('active'));
+            document.getElementById('page-' + id).classList.remove('hidden');
+            document.getElementById('link-' + id).classList.add('active');
+            if(id === 'add') generateCode();
+        }
+
+        async function createCode() {
+            const name = document.getElementById('stdName').value;
+            const code = document.getElementById('stdCode').value;
+            const section = document.getElementById('stdSection').value;
+            const days = parseInt(document.getElementById('subType').value);
+
+            if(!name) return alert("أدخل اسم الطالب");
+
+            const expiryDate = new Date();
+            expiryDate.setDate(expiryDate.getDate() + days);
+
+            await db.ref('approvedStudents/' + code).set({
+                studentName: name,
+                section: section,
+                expiryDate: expiryDate.getTime(),
+                isBlocked: false,
+                deviceId: null,
+                createdAt: new Date().getTime()
+            });
+
+            alert("✅ تم تفعيل الكود بنجاح: " + code);
+            document.getElementById('stdName').value = '';
+            showPage('list');
         }
 
         function loadData() {
             db.ref('approvedStudents').on('value', snap => {
                 const data = snap.val();
                 let html = '';
-                let totalRev = 0, count = 0;
+                let total = 0, active = 0, blocked = 0;
+                const now = new Date().getTime();
 
                 for(let id in data) {
                     const s = data[id];
-                    count++;
-                    totalRev += parseInt(s.price || 0);
+                    total++;
+                    if(s.isBlocked) blocked++; else active++;
+
+                    const timeLeft = Math.ceil((s.expiryDate - now) / (1000 * 60 * 60 * 24));
+                    const statusText = timeLeft > 0 ? (s.isBlocked ? 'محظور' : 'نشط') : 'منتهي';
+                    const statusClass = (timeLeft > 0 && !s.isBlocked) ? 'bg-active' : 'bg-blocked';
 
                     html += `
-                        <tr class="border-b border-white/5">
-                            <td class="p-4 font-bold text-gray-200">${s.studentName}</td>
-                            <td class="p-4 text-gray-400">${id}<br><span class="text-indigo-400 text-[9px]">${s.section}</span></td>
-                            <td class="p-4">
-                                ${s.deviceId ? '<span class="text-green-500">مفعل ✅</span>' : '<span class="text-gray-500 italic">متاح</span>'}
-                                ${s.deviceId ? `<br><button onclick="reset('${id}')" class="text-[9px] text-yellow-500 underline">إعادة ضبط</button>` : ''}
+                        <tr class="rounded-2xl border-b border-white/5">
+                            <td class="p-4 font-bold">${s.studentName}<br><span class="text-[10px] text-indigo-400">${s.section}</span></td>
+                            <td class="p-4 font-mono text-fuchsia-400">${id}</td>
+                            <td class="p-4 text-xs ${timeLeft <= 2 ? 'text-red-400 animate-pulse' : 'text-gray-300'}">
+                                ${new Date(s.expiryDate).toLocaleDateString('ar-EG')}<br>
+                                <span>(فاضل ${timeLeft} يوم)</span>
                             </td>
+                            <td class="p-4"><span class="status-badge ${statusClass}">${statusText}</span></td>
                             <td class="p-4">
-                                <button onclick="renew('${id}')" class="bg-green-600 text-[9px] px-2 py-1 rounded">تجديد</button>
-                            </td>
-                            <td class="p-4">
-                                <button onclick="del('${id}')" class="text-red-400"><i class="fas fa-trash"></i></button>
+                                <div class="flex gap-2">
+                                    <button onclick="renew('${id}')" class="text-green-500 hover:scale-110" title="تجديد شهر"><i class="fas fa-sync-alt"></i></button>
+                                    <button onclick="toggleBlock('${id}', ${s.isBlocked})" class="${s.isBlocked ? 'text-blue-500' : 'text-orange-500'} hover:scale-110" title="حظر/إلغاء">
+                                        <i class="fas ${s.isBlocked ? 'fa-unlock' : 'fa-user-slash'}"></i>
+                                    </button>
+                                    <button onclick="deleteCode('${id}')" class="text-red-500 hover:scale-110" title="حذف نهائي"><i class="fas fa-trash"></i></button>
+                                </div>
                             </td>
                         </tr>
                     `;
                 }
-                document.getElementById('stdTableBody').innerHTML = html;
-                document.getElementById('count-all').innerText = count;
-                document.getElementById('count-rev').innerText = totalRev.toLocaleString();
+                document.getElementById('codesTable').innerHTML = html;
+                document.getElementById('total-std').innerText = total;
+                document.getElementById('active-std').innerText = active;
+                document.getElementById('blocked-std').innerText = blocked;
             });
         }
 
-        function saveStudent() {
-            const name = document.getElementById('name').value;
-            const code = document.getElementById('code').value;
-            if(!name || !code) return alert('أكمل البيانات');
-            db.ref('approvedStudents/'+code).set({
-                studentName: name,
-                section: document.getElementById('section').value,
-                price: document.getElementById('price').value,
-                deviceId: null
-            }).then(() => {
-                alert('تم الحفظ بنجاح');
-                document.getElementById('name').value = '';
-                document.getElementById('code').value = '';
-                showPage('students', document.querySelectorAll('.nav-link')[1]);
-            });
+        function renew(id) {
+            if(confirm('هل تريد تجديد الاشتراك لمدة 30 يوم إضافية؟')) {
+                db.ref('approvedStudents/'+id).once('value', snap => {
+                    let newExpiry = new Date(snap.val().expiryDate);
+                    newExpiry.setDate(newExpiry.getDate() + 30);
+                    db.ref('approvedStudents/'+id).update({ expiryDate: newExpiry.getTime(), isBlocked: false });
+                });
+            }
         }
 
-        function reset(id) { if(confirm('مسح بصمة الجهاز؟')) db.ref('approvedStudents/'+id).update({ deviceId: null }); }
-        function renew(id) { if(confirm('تجديد اشتراك الطالب؟')) alert('تم التجديد بنجاح!'); }
-        function del(id) { if(confirm('حذف الطالب؟')) db.ref('approvedStudents/'+id).remove(); }
-        function search() {
+        function toggleBlock(id, currentStatus) {
+            const action = currentStatus ? 'إلغاء حظر' : 'حظر';
+            if(confirm(`هل تريد ${action} هذا الطالب؟`)) {
+                db.ref('approvedStudents/'+id).update({ isBlocked: !currentStatus });
+            }
+        }
+
+        function deleteCode(id) {
+            if(confirm('سيتم حذف الطالب نهائياً، هل أنت متأكد؟')) {
+                db.ref('approvedStudents/'+id).remove();
+            }
+        }
+
+        function searchTable() {
             let val = document.getElementById('searchInp').value.toLowerCase();
-            let rows = document.getElementById('stdTableBody').getElementsByTagName('tr');
+            let rows = document.getElementById('codesTable').getElementsByTagName('tr');
             for(let r of rows) r.style.display = r.innerText.toLowerCase().includes(val) ? '' : 'none';
         }
+
+        loadData();
     </script>
 </body>
-                    </html>
-                    
+</html>
