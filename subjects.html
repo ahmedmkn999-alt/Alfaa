@@ -41,6 +41,18 @@
             box-shadow: 0 10px 40px rgba(0,0,0,0.5);
         }
 
+        /* تأثير الكتابة */
+        .typing-box {
+            font-size: 0.8rem; font-weight: bold; color: #fbbf24;
+            display: flex; align-items: center; height: 20px; margin-top: 2px;
+        }
+        .cursor {
+            display: inline-block; width: 2px; height: 14px; 
+            background: #fbbf24; margin-right: 3px;
+            animation: blink 0.8s infinite;
+        }
+        @keyframes blink { 50% { opacity: 0; } }
+
         /* كروت المواد الجديد (Neon Glass) */
         .subject-card {
             background: rgba(30, 41, 59, 0.3); 
@@ -52,7 +64,6 @@
             text-align: center; height: 180px;
         }
 
-        /* تأثير التوهج عند اللمس */
         .subject-card::before {
             content: ''; position: absolute; inset: 0;
             background: linear-gradient(45deg, transparent, rgba(99, 102, 241, 0.1), transparent);
@@ -65,7 +76,6 @@
         }
         .subject-card:hover::before { opacity: 1; }
 
-        /* الأيقونات الـ 3D */
         .s-icon {
             width: 70px; height: 70px; margin-bottom: 15px;
             filter: drop-shadow(0 5px 15px rgba(0,0,0,0.5));
@@ -76,10 +86,9 @@
         .s-title { font-size: 1.2rem; font-weight: 800; margin-bottom: 5px; color: white; }
         .s-info { font-size: 0.8rem; color: #94a3b8; background: rgba(0,0,0,0.3); padding: 4px 12px; border-radius: 20px; }
 
-        /* شريط المستوى */
         .level-bar {
             width: 100%; height: 6px; background: rgba(255,255,255,0.1);
-            border-radius: 10px; margin-top: 10px; overflow: hidden;
+            border-radius: 10px; margin-top: 8px; overflow: hidden;
         }
         .level-fill {
             height: 100%; background: linear-gradient(90deg, #6366f1, #d946ef);
@@ -100,7 +109,11 @@
                 </div>
                 <div>
                     <h2 class="font-bold text-lg leading-tight group-hover:text-indigo-400 transition" id="sName">جاري التحميل...</h2>
-                    <p class="text-xs text-gray-400 mb-1">Level 1 Student</p>
+                    
+                    <div class="typing-box">
+                        <span class="typing-text"></span><span class="cursor"></span>
+                    </div>
+
                     <div class="level-bar w-24"><div class="level-fill"></div></div>
                 </div>
             </a>
@@ -133,26 +146,67 @@
     </div>
 
     <script>
+        // ✨ كود الكتابة المتحركة ✨
+        const phrases = [
+            "✨ حلمك يستاهل تتعب عشانه!",
+            "💪 عافر.. هتوصل أكيد",
+            "🚀 أنت قدها وقدود يا بطل",
+            "🎓 دكتور المستقبل بإذن الله",
+            "💡 اصنع مستقبلك بنفسك",
+            "🦁 خليك أسد في المذاكرة"
+        ];
+        
+        let phraseIdx = 0;
+        let charIdx = 0;
+        let isDeleting = false;
+
+        function typeEffect() {
+            const currentPhrase = phrases[phraseIdx];
+            const textElement = document.querySelector(".typing-text");
+            
+            if (!textElement) return;
+
+            if (isDeleting) {
+                textElement.textContent = currentPhrase.substring(0, charIdx--);
+                if (charIdx < 0) {
+                    isDeleting = false;
+                    phraseIdx = (phraseIdx + 1) % phrases.length;
+                    setTimeout(typeEffect, 500); // استراحة قبل الكتابة الجديدة
+                    return;
+                }
+            } else {
+                textElement.textContent = currentPhrase.substring(0, charIdx++);
+                if (charIdx > currentPhrase.length) {
+                    isDeleting = true;
+                    setTimeout(typeEffect, 2000); // استراحة والقراءة كاملة
+                    return;
+                }
+            }
+            setTimeout(typeEffect, isDeleting ? 50 : 100);
+        }
+
+        // تشغيل التأثير عند التحميل
+        document.addEventListener('DOMContentLoaded', typeEffect);
+
         const { createApp, ref, onMounted } = Vue;
 
-        // 🌟 أيقونات 3D عالية الجودة
         const IMGS = {
-            "عرب": "https://cdn-icons-png.flaticon.com/512/330/330459.png", // علم
-            "لغة عربية": "https://cdn-icons-png.flaticon.com/512/10605/10605973.png", // كتاب عربي
-            "نجليز": "https://cdn-icons-png.flaticon.com/512/3269/3269817.png", // علم أمريكا 3D
+            "عرب": "https://cdn-icons-png.flaticon.com/512/330/330459.png",
+            "لغة عربية": "https://cdn-icons-png.flaticon.com/512/10605/10605973.png",
+            "نجليز": "https://cdn-icons-png.flaticon.com/512/3269/3269817.png",
             "English": "https://cdn-icons-png.flaticon.com/512/3269/3269817.png",
-            "فرنس": "https://cdn-icons-png.flaticon.com/512/330/330490.png", // علم فرنسا
-            "فيزيا": "https://cdn-icons-png.flaticon.com/512/3081/3081530.png", // ذرة زرقاء
-            "كيميا": "https://cdn-icons-png.flaticon.com/512/4341/4341112.png", // قارورة تجربة
-            "أحيا": "https://cdn-icons-png.flaticon.com/512/2997/2997300.png", // DNA
+            "فرنس": "https://cdn-icons-png.flaticon.com/512/330/330490.png",
+            "فيزيا": "https://cdn-icons-png.flaticon.com/512/3081/3081530.png",
+            "كيميا": "https://cdn-icons-png.flaticon.com/512/4341/4341112.png",
+            "أحيا": "https://cdn-icons-png.flaticon.com/512/2997/2997300.png",
             "بيولوج": "https://cdn-icons-png.flaticon.com/512/2997/2997300.png",
-            "رياض": "https://cdn-icons-png.flaticon.com/512/4151/4151897.png", // حاسبة وأرقام
+            "رياض": "https://cdn-icons-png.flaticon.com/512/4151/4151897.png",
             "جبر": "https://cdn-icons-png.flaticon.com/512/4151/4151897.png",
-            "تاريخ": "https://cdn-icons-png.flaticon.com/512/2234/2234665.png", // مخطوطة
-            "جغرافي": "https://cdn-icons-png.flaticon.com/512/854/854878.png", // خريطة 3D
-            "فلسف": "https://cdn-icons-png.flaticon.com/512/3169/3169230.png", // عقل
+            "تاريخ": "https://cdn-icons-png.flaticon.com/512/2234/2234665.png",
+            "جغرافي": "https://cdn-icons-png.flaticon.com/512/854/854878.png",
+            "فلسف": "https://cdn-icons-png.flaticon.com/512/3169/3169230.png",
             "نفس": "https://cdn-icons-png.flaticon.com/512/3169/3169230.png",
-            "default": "https://cdn-icons-png.flaticon.com/512/3209/3209990.png" // كتاب مفتوح
+            "default": "https://cdn-icons-png.flaticon.com/512/3209/3209990.png"
         };
 
         const URLS = {
@@ -168,7 +222,6 @@
                 const loading = ref(true);
                 const yid = ref(null);
                 
-                // دالة ذكية للصور
                 const getImg = (n) => {
                     for(let k in IMGS) if(n.includes(k)) return IMGS[k];
                     return IMGS['default'];
@@ -177,9 +230,8 @@
                 const go = (s) => window.location.href = `chapters.html?yid=${yid.value}&sid=${s.id}`;
 
                 onMounted(async () => {
-                    const code = checkAuth(); // من ملف auth.js
+                    const code = checkAuth();
                     const db = firebase.database();
-                    
                     try {
                         const snap = await db.ref('approvedStudents/'+code).once('value');
                         const user = snap.val();
@@ -198,5 +250,4 @@
         }).mount('#app');
     </script>
 </body>
-                </html>
-    
+</html>
