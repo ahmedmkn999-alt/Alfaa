@@ -92,16 +92,19 @@
                 };
 
                 const openLecture = (ch) => {
+                    // تخزين فيديوهات المحاضرة المختارة فقط ليتم عرضها في صفحة الفيديوهات
                     localStorage.setItem('selectedLectureVids', JSON.stringify(getVideos(ch)));
                     localStorage.setItem('selectedLectureTitle', ch.chapter_name || ch.name);
                     window.location.href = 'parts.html';
                 };
 
                 onMounted(async () => {
-                    const code = checkAuth();
+                    checkAuth();
                     const db = firebase.database();
+                    const code = localStorage.getItem('alpha_user_code');
                     const snap = await db.ref('approvedStudents/'+code).once('value');
                     const section = snap.val().section;
+                    
                     const res = await fetch("https://plus-teal.vercel.app/organized_output.json");
                     const data = await res.json();
                     
@@ -111,7 +114,7 @@
                     
                     teacherName.value = teacher.name;
                     
-                    // استخراج كافة الفصول/المحاضرات بشكل مسطح لعرضها في كروت منفصلة
+                    // استخراج المحاضرات من الوحدات لعرضها ككروت فردية
                     let tempLectures = [];
                     if(teacher.units) {
                         teacher.units.forEach(u => { if(u.chapters) tempLectures.push(...u.chapters); });
