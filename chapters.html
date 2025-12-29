@@ -1,1 +1,171 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>المدرسين | ALPHA</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <script src="auth.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        body { 
+            background-color: #000; color: white; font-family: 'Tajawal', sans-serif; 
+            min-height: 100vh; overflow-x: hidden;
+        }
+
+        /* خلفية نيون خفيفة */
+        .bg-glow {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1;
+            background: radial-gradient(circle at 50% 10%, #1e1b4b, #000 60%);
+        }
+
+        /* كارت المدرس الاحترافي */
+        .pro-card {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(20px);
+            border-radius: 24px;
+            padding: 30px 20px;
+            display: flex; flex-direction: column; align-items: center;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            position: relative; overflow: hidden;
+        }
+
+        /* تأثير التوهج عند اللمس */
+        .pro-card:hover {
+            transform: translateY(-10px);
+            background: rgba(255, 255, 255, 0.07);
+            border-color: #8b5cf6;
+            box-shadow: 0 20px 40px -10px rgba(139, 92, 246, 0.3);
+        }
+
+        /* حاوية الصورة */
+        .img-ring {
+            width: 110px; height: 110px;
+            border-radius: 50%;
+            padding: 3px;
+            background: linear-gradient(135deg, #6366f1, #d946ef);
+            box-shadow: 0 0 20px rgba(99, 102, 241, 0.4);
+            margin-bottom: 20px;
+            transition: 0.4s;
+        }
+        .pro-card:hover .img-ring { transform: scale(1.1); box-shadow: 0 0 30px rgba(217, 70, 239, 0.6); }
+
+        .teacher-img {
+            width: 100%; height: 100%; border-radius: 50%;
+            object-fit: cover; border: 4px solid #0f172a;
+            background: #1e293b;
+        }
+
+        .t-name { font-size: 1.4rem; font-weight: 800; color: white; margin-bottom: 5px; text-align: center; }
+        
+        /* شارة عدد الدروس */
+        .info-badge {
+            background: rgba(99, 102, 241, 0.15); color: #a5b4fc;
+            padding: 6px 16px; border-radius: 50px; font-size: 0.85rem;
+            font-weight: bold; border: 1px solid rgba(99, 102, 241, 0.3);
+            display: flex; align-items: center; gap: 6px;
+        }
+
+        .arrow-btn {
+            position: absolute; bottom: 20px; right: 20px;
+            width: 40px; height: 40px; border-radius: 50%;
+            background: white; color: black; display: flex; align-items: center; justify-content: center;
+            opacity: 0; transform: scale(0.5); transition: 0.3s;
+        }
+        .pro-card:hover .arrow-btn { opacity: 1; transform: scale(1); }
+    </style>
+</head>
+<body>
+    <div class="bg-glow"></div>
+
+    <div id="app" class="p-6">
+        <div class="flex items-center justify-between mb-10">
+            <div class="flex items-center gap-4">
+                <button onclick="history.back()" class="w-12 h-12 bg-white/5 border border-white/10 rounded-full text-white hover:bg-white/10 transition flex items-center justify-center">
+                    <i class="fas fa-arrow-right text-lg"></i>
+                </button>
+                <div>
+                    <h1 class="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-white to-indigo-300">نخبة ALPHA</h1>
+                    <p class="text-gray-400 text-sm">اختر معلمك وابدأ الرحلة</p>
+                </div>
+            </div>
+        </div>
+
+        <div v-if="loading" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div class="pro-card animate-pulse h-64"></div>
+            <div class="pro-card animate-pulse h-64"></div>
+        </div>
+
+        <div v-else class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div v-for="t in teachers" :key="t.id" @click="go(t)" class="pro-card cursor-pointer group">
+                
+                <div class="img-ring">
+                    <img :src="t.image_url || 'https://cdn-icons-png.flaticon.com/512/3135/3135715.png'" class="teacher-img" onerror="this.src='https://cdn-icons-png.flaticon.com/512/3135/3135715.png'">
+                </div>
+
+                <h2 class="t-name group-hover:text-indigo-300 transition">{{ t.name }}</h2>
+                
+                <div class="info-badge">
+                    <i class="fas fa-layer-group text-xs"></i>
+                    <span>{{ getTotalContent(t) }} محتوى تعليمي</span>
+                </div>
+
+                <div class="arrow-btn"><i class="fas fa-arrow-left"></i></div>
+            </div>
+        </div>
+        
+        <div v-if="!loading && teachers.length === 0" class="text-center mt-20 opacity-50">
+            <i class="fas fa-user-slash text-6xl mb-4"></i>
+            <p>لا يوجد مدرسين مضافين لهذه المادة بعد.</p>
+        </div>
+    </div>
+
+    <script>
+        const { createApp, ref, onMounted } = Vue;
+        const URLS = {
+            'علمي علوم': "https://plus-teal.vercel.app/organized_output.json",
+            'أدبي': "https://plus-teal.vercel.app/organized_output-a.json", 
+            'علمي رياضة': "https://platform-sigma-seven.vercel.app/organized_output-e.json",
+            'أزهر': "https://plus-teal.vercel.app/organized_output.json"
+        };
+
+        createApp({
+            setup() {
+                const teachers = ref([]);
+                const loading = ref(true);
+                const params = new URLSearchParams(window.location.search);
+
+                const go = (t) => window.location.href = `lectures.html?yid=${params.get('yid')}&sid=${params.get('sid')}&tid=${t.id}`;
+
+                const getTotalContent = (t) => {
+                    return (t.units ? t.units.length : 0) + (t.chapters ? t.chapters.length : 0);
+                };
+
+                onMounted(async () => {
+                    const code = checkAuth();
+                    const db = firebase.database();
+                    try {
+                        const snap = await db.ref('approvedStudents/'+code).once('value');
+                        const user = snap.val();
+
+                        const res = await fetch(URLS[user.section] || URLS['علمي علوم']);
+                        const data = await res.json();
+                        const year = data.find(y => y.id == params.get('yid')) || data[0];
+                        const sub = year.subjects.find(s => s.id == params.get('sid'));
+                        teachers.value = sub.teachers || [];
+                    } catch(e) { console.error(e); } 
+                    finally { loading.value = false; }
+                });
+                return { teachers, loading, go, getTotalContent };
+            }
+        }).mount('#app');
+    </script>
+</body>
+          </html>
 
