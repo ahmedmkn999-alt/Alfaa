@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>ALPHA | Login</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+    <script src="auth.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@900&family=Tajawal:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            background: black; height: 100vh; display: flex; align-items: center; justify-content: center;
+            background-image: radial-gradient(circle at 50% 0%, #1e1b4b, #000); color: white; font-family: 'Tajawal', sans-serif;
+        }
+        .glass-box {
+            background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.1);
+            backdrop-filter: blur(20px); padding: 40px 30px; border-radius: 24px; width: 90%; max-width: 380px; text-align: center;
+        }
+        .alpha-logo {
+            font-family: 'Outfit', sans-serif; font-size: 3.5rem; font-weight: 900;
+            background: linear-gradient(to right, #6366f1, #a855f7); -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+        }
+        input {
+            width: 100%; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1);
+            padding: 15px; border-radius: 12px; color: white; margin-bottom: 20px; outline: none; text-align: center; font-size: 1.2rem;
+        }
+        input:focus { border-color: #6366f1; }
+        button {
+            width: 100%; background: linear-gradient(135deg, #6366f1, #a855f7); padding: 15px;
+            border-radius: 12px; font-weight: bold; color: white; cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <div class="glass-box">
+        <h1 class="alpha-logo">ALPHA</h1>
+        <p class="text-gray-400 mb-8 text-sm tracking-widest">منصة المستقبل التعليمية</p>
+        <form onsubmit="login(event)">
+            <input type="tel" id="code" placeholder="كود الطالب" required>
+            <button id="btn">دخول</button>
+        </form>
+        <p id="msg" class="text-red-500 mt-4 text-sm hidden"></p>
+    </div>
+
+    <script>
+        if(localStorage.getItem('alpha_user_code')) window.location.href = 'subjects.html';
+        const db = firebase.database();
+
+        async function login(e) {
+            e.preventDefault();
+            const code = document.getElementById('code').value.trim();
+            const msg = document.getElementById('msg');
+            document.getElementById('btn').innerText = "...";
+
+            try {
+                const snap = await db.ref('approvedStudents/'+code).once('value');
+                const user = snap.val();
+                if(!user) throw "الكود غير صحيح";
+                if(user.isBlocked) throw "تم حظر الحساب";
+
+                let did = localStorage.getItem('alpha_device_id');
+                if(!did) { did = 'D-'+Math.random(); localStorage.setItem('alpha_device_id', did); }
+                
+                if(user.deviceId && user.deviceId !== did) throw "الكود مستخدم على جهاز آخر";
+                if(!user.deviceId) await db.ref('approvedStudents/'+code).update({deviceId: did});
+
+                localStorage.setItem('alpha_user_code', code);
+                window.location.href = 'subjects.html';
+            } catch(err) {
+                msg.innerText = err; msg.classList.remove('hidden');
+                document.getElementById('btn').innerText = "دخول";
+            }
+        }
+    </script>
+</body>
+  </html>
+  
