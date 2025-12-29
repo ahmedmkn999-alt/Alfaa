@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>المشغل | ALPHA</title>
+    <link rel="stylesheet" href="https://cdn.plyr.io/3.7.8/plyr.css" />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        /* إعدادات الشاشة الكاملة */
+        body, html { margin: 0; padding: 0; height: 100%; background: #000; overflow: hidden; font-family: 'Tajawal', sans-serif; }
+        
+        /* حاوية الفيديو */
+        .video-wrapper {
+            width: 100%; height: 100vh; display: flex; align-items: center; justify-content: center;
+            position: relative;
+        }
+
+        /* --- تخصيص ألوان Plyr لتناسب ALPHA --- */
+        :root {
+            --plyr-color-main: #6366f1; /* لون النيون الأزرق */
+            --plyr-video-background: #000;
+            --plyr-menu-background: rgba(30, 41, 59, 0.95);
+            --plyr-menu-color: #fff;
+            --plyr-menu-border-color: rgba(255, 255, 255, 0.1);
+        }
+
+        /* تعديل شكل الزر الكبير */
+        .plyr__control--overlaid {
+            background: rgba(99, 102, 241, 0.8) !important;
+            box-shadow: 0 0 30px rgba(99, 102, 241, 0.5);
+        }
+        
+        /* تعديل شريط التحميل */
+        .plyr--full-ui input[type=range] {
+            color: #d946ef !important; /* لون بينك */
+        }
+
+        /* --- الإضافات الخاصة --- */
+        
+        /* زر الرجوع العائم */
+        .back-btn {
+            position: absolute; top: 20px; right: 20px; z-index: 50;
+            width: 45px; height: 45px; border-radius: 50%;
+            background: rgba(0, 0, 0, 0.5); color: white;
+            display: flex; align-items: center; justify-content: center;
+            border: 1px solid rgba(255,255,255,0.1); backdrop-filter: blur(5px);
+            cursor: pointer; transition: 0.3s;
+        }
+        .back-btn:hover { background: #6366f1; transform: scale(1.1); }
+
+        /* العلامة المائية (Watermark) */
+        .alpha-watermark {
+            position: absolute; top: 20px; left: 20px; z-index: 40;
+            opacity: 0.7; pointer-events: none;
+            display: flex; align-items: center; gap: 5px;
+        }
+        .logo-text {
+            font-weight: 900; font-size: 1.2rem;
+            background: linear-gradient(to right, #6366f1, #d946ef);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            text-shadow: 0 0 20px rgba(99, 102, 241, 0.5);
+        }
+
+        /* طبقة اللمس المزدوج (Double Tap Zones) */
+        .dt-zone {
+            position: absolute; top: 0; bottom: 0; width: 30%; z-index: 10;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.5rem; font-weight: bold; color: rgba(255,255,255,0.8);
+            opacity: 0; transition: opacity 0.3s; pointer-events: auto;
+        }
+        .dt-left { left: 0; background: linear-gradient(90deg, rgba(0,0,0,0.4), transparent); }
+        .dt-right { right: 0; background: linear-gradient(-90deg, rgba(0,0,0,0.4), transparent); }
+        
+        /* أيقونة اللمس */
+        .tap-icon { 
+            background: rgba(0,0,0,0.6); padding: 15px; border-radius: 50%;
+            backdrop-filter: blur(5px); display: flex; flex-direction: column; align-items: center;
+        }
+        .tap-text { font-size: 0.8rem; margin-top: 5px; }
+
+    </style>
+</head>
+<body>
+
+    <div onclick="history.back()" class="back-btn">
+        <i class="fas fa-arrow-right text-lg"></i>
+    </div>
+
+    <div class="alpha-watermark">
+        <i class="fas fa-play-circle text-indigo-500 text-xl"></i>
+        <span class="logo-text">ALPHA</span>
+    </div>
+
+    <div class="video-wrapper">
+        <video id="player" playsinline controls data-poster="https://via.placeholder.com/1920x1080/000000/FFFFFF?text=ALPHA+Player">
+            </video>
+
+        <div id="tapLeft" class="dt-zone dt-left">
+            <div class="tap-icon"><i class="fas fa-backward"></i><span class="tap-text">10s</span></div>
+        </div>
+        <div id="tapRight" class="dt-zone dt-right">
+            <div class="tap-icon"><i class="fas fa-forward"></i><span class="tap-text">10s</span></div>
+        </div>
+    </div>
+
+    <script src="https://cdn.plyr.io/3.7.8/plyr.js"></script>
+    <script>
+        const vData = JSON.parse(localStorage.getItem('currentVideo'));
+        const videoEl = document.getElementById('player');
+
+        if (vData) {
+            let src = vData.stream_url || vData.link || vData.url || vData.video_url;
+
+            // ✅ دعم يوتيوب الذكي
+            if (src.includes('youtube') || src.includes('youtu.be')) {
+                // تحويل الفيديو لنظام Embed المتوافق
+                let embedId = src.split('v=')[1] || src.split('/').pop();
+                const ampIndex = embedId.indexOf('&');
+                if(ampIndex !== -1) embedId = embedId.substring(0, ampIndex);
+
+                document.querySelector('.video-wrapper').innerHTML = `
+                    <div id="player" data-plyr-provider="youtube" data-plyr-embed-id="${embedId}"></div>
+                    <div id="tapLeft" class="dt-zone dt-left"><div class="tap-icon"><i class="fas fa-backward"></i><span class="tap-text">10s</span></div></div>
+                    <div id="tapRight" class="dt-zone dt-right"><div class="tap-icon"><i class="fas fa-forward"></i><span class="tap-text">10s</span></div></div>
+                `;
+            } else {
+                // فيديو عادي (MP4)
+                videoEl.src = src;
+            }
+
+            // ⚙️ إعدادات المشغل (نفس يوتيوب)
+            const player = new Plyr('#player', {
+                controls: [
+                    'play-large', // الزر الكبير في النص
+                    'play', // زر التشغيل تحت
+                    'progress', // شريط الوقت
+                    'current-time', // الوقت الحالي
+                    'duration', // الوقت الكلي
+                    'mute', // كتم الصوت
+                    'volume', // مستوى الصوت
+                    'settings', // الترس
+                    'pip', // صورة داخل صورة
+                    'fullscreen' // التكبير
+                ],
+                settings: ['quality', 'speed', 'loop'],
+                speed: { selected: 1, options: [0.5, 0.75, 1, 1.25, 1.5, 1.75, 2] },
+                quality: { default: 720, options: [4320, 2880, 2160, 1440, 1080, 720, 576, 480, 360, 240] },
+                keyboard: { focused: true, global: true }, // تفعيل الكيبورد
+                tooltips: { controls: true, seek: true }, // إظهار تلميحات
+                i18n: { speed: 'سرعة التشغيل', quality: 'الجودة', settings: 'الإعدادات' } // تعريب
+            });
+
+            // 📱 كود اللمس المزدوج (Double Tap to Seek)
+            const tapLeft = document.getElementById('tapLeft');
+            const tapRight = document.getElementById('tapRight');
+            let lastTap = 0;
+
+            function handleDoubleTap(direction) {
+                const now = new Date().getTime();
+                if (now - lastTap < 400) { // لو الضغطتين بينهم أقل من 400ms
+                    if(direction === 'forward') {
+                        player.forward(10);
+                        showEffect(tapRight);
+                    } else {
+                        player.rewind(10);
+                        showEffect(tapLeft);
+                    }
+                }
+                lastTap = now;
+            }
+
+            function showEffect(el) {
+                el.style.opacity = '1';
+                setTimeout(() => el.style.opacity = '0', 600);
+            }
+
+            tapRight.addEventListener('click', () => handleDoubleTap('forward'));
+            tapLeft.addEventListener('click', () => handleDoubleTap('backward'));
+
+        } else {
+            alert("خطأ: لا يوجد مصدر للفيديو!");
+            history.back();
+        }
+    </script>
+</body>
+</html>
