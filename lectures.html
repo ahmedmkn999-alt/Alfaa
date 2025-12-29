@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>الحصص | ALPHA</title>
+    <title>المحاضرات | ALPHA</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
@@ -13,178 +13,118 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <style>
-        body { 
-            background: #000; color: white; font-family: 'Tajawal', sans-serif; 
-            min-height: 100vh; padding-bottom: 50px; overflow-x: hidden;
-        }
-        /* خلفية نيون */
-        .bg-glow {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1;
-            background: radial-gradient(circle at 50% 10%, #1e1b4b, #000 70%);
-        }
-
-        /* --- تصميم الكارت الجديد (زي الصورة) --- */
-        .lecture-card {
-            background: rgba(30, 41, 59, 0.6); /* خلفية كارت غامقة */
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 24px;
-            padding: 20px;
-            margin-bottom: 24px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
-            position: relative; overflow: hidden;
-            transition: 0.3s;
-        }
-
-        .lecture-card:hover {
-            transform: translateY(-5px);
-            border-color: #6366f1; /* حدود زرقاء عند اللمس */
-            box-shadow: 0 15px 40px rgba(99, 102, 241, 0.2);
-        }
-
-        /* الجزء العلوي: العنوان والصورة */
-        .card-header {
-            display: flex; justify-content: space-between; align-items: flex-start;
-            margin-bottom: 20px;
-        }
-        .lec-info { flex: 1; }
-        .lec-label { 
-            color: #f472b6; font-size: 0.8rem; font-weight: bold; margin-bottom: 5px; 
-            display: inline-block;
-        }
-        .lec-title { 
-            font-size: 1.4rem; font-weight: 800; color: white; line-height: 1.4;
-        }
-
-        /* صورة المحاضرة الجانبية */
-        .lec-img-box {
-            width: 80px; height: 80px; border-radius: 16px;
-            background: linear-gradient(135deg, #6366f1, #d946ef);
-            padding: 2px; flex-shrink: 0; margin-right: 15px;
-        }
-        .lec-img {
-            width: 100%; height: 100%; border-radius: 14px; object-fit: cover;
-            background: #1e293b;
-        }
-
-        /* مربعات الإحصائيات (فيديو - ملف - امتحان) */
-        .stats-grid {
-            display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px;
-            margin-bottom: 20px;
-        }
-        .stat-box {
-            background: rgba(0, 0, 0, 0.3); border-radius: 12px;
-            padding: 10px 5px; text-align: center;
-            border: 1px solid rgba(255, 255, 255, 0.05);
-        }
-        .stat-icon { font-size: 1.2rem; color: #818cf8; margin-bottom: 5px; }
-        .stat-num { font-weight: bold; font-size: 1.1rem; color: white; }
-        .stat-text { font-size: 0.7rem; color: #94a3b8; }
-
-        /* الزرار السفلي العريض */
-        .btn-content {
-            background: #0f172a; color: white; width: 100%; padding: 15px;
-            border-radius: 16px; font-weight: bold; font-size: 1rem;
-            display: flex; justify-content: center; align-items: center; gap: 10px;
-            transition: 0.2s; border: 1px solid rgba(255,255,255,0.1);
-        }
-        .btn-content:active { background: #6366f1; border-color: #6366f1; }
+        body { background: #000; color: white; font-family: 'Tajawal', sans-serif; min-height: 100vh; padding-bottom: 50px; }
+        .bg-glow { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; background: radial-gradient(circle at 50% 10%, #1e1b4b, #000 70%); }
+        .lecture-card { background: rgba(30, 41, 59, 0.6); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 24px; padding: 20px; margin-bottom: 24px; transition: 0.3s; }
+        .lecture-card:hover { transform: translateY(-5px); border-color: #6366f1; }
+        .card-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 20px; }
+        .lec-label { color: #f472b6; font-size: 0.8rem; font-weight: bold; }
+        .lec-title { font-size: 1.4rem; font-weight: 800; color: white; }
+        .lec-img-box { width: 80px; height: 80px; border-radius: 16px; background: linear-gradient(135deg, #6366f1, #d946ef); padding: 2px; }
+        .lec-img { width: 100%; height: 100%; border-radius: 14px; object-fit: cover; background: #1e293b; }
+        .stats-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 20px; }
+        .stat-box { background: rgba(0, 0, 0, 0.3); border-radius: 12px; padding: 10px 5px; text-align: center; border: 1px solid rgba(255, 255, 255, 0.05); }
+        .stat-icon { font-size: 1.2rem; color: #818cf8; }
+        .btn-content { background: #0f172a; color: white; width: 100%; padding: 15px; border-radius: 16px; font-weight: bold; display: flex; justify-content: center; align-items: center; gap: 10px; border: 1px solid rgba(255,255,255,0.1); }
     </style>
 </head>
 <body>
     <div class="bg-glow"></div>
-
     <div id="app" class="p-5">
         <div class="flex items-center gap-4 mb-8">
-            <button onclick="history.back()" class="w-10 h-10 bg-white/10 rounded-full text-white flex items-center justify-center hover:bg-white/20">➜</button>
-            <div>
-                <h1 class="text-2xl font-bold text-white">{{ teacherName }}</h1>
-                <p class="text-indigo-400 text-xs">اختر المحاضرة للمتابعة</p>
-            </div>
+            <button onclick="history.back()" class="w-10 h-10 bg-white/10 rounded-full text-white flex items-center justify-center">➜</button>
+            <h1 class="text-2xl font-bold">{{ teacherName }}</h1>
         </div>
 
-        <div v-if="loading" class="text-center mt-20 text-gray-500">جاري التحميل...</div>
+        <div v-if="loading" class="text-center mt-20">جاري التحميل...</div>
 
         <div v-else>
-            <div v-for="(unit, uIdx) in units" :key="uIdx">
-                <div class="text-sm font-bold text-gray-400 mb-4 mt-6 border-r-2 border-indigo-500 pr-3">
-                    {{ unit.unit_name }}
+            <div v-for="(ch, index) in allLectures" :key="index" class="lecture-card">
+                <div class="card-header">
+                    <div>
+                        <span class="lec-label">المحاضرة {{ index + 1 }}</span>
+                        <h2 class="lec-title">{{ ch.chapter_name || ch.name }}</h2>
+                    </div>
+                    <div class="lec-img-box">
+                        <img src="https://cdn-icons-png.flaticon.com/512/3413/3413535.png" class="lec-img">
+                    </div>
                 </div>
 
-                <div v-for="(ch, cIdx) in unit.chapters" :key="cIdx" class="lecture-card">
-                    
-                    <div class="card-header">
-                        <div class="lec-info">
-                            <span class="lec-label">المحاضرة {{ cIdx + 1 }}</span>
-                            <h2 class="lec-title">{{ ch.chapter_name || ch.name }}</h2>
-                        </div>
-                        <div class="lec-img-box">
-                            <img src="https://cdn-icons-png.flaticon.com/512/3413/3413535.png" class="lec-img">
-                        </div>
+                <div class="stats-grid">
+                    <div class="stat-box">
+                        <i class="fas fa-video stat-icon"></i>
+                        <div class="font-bold">{{ getVideos(ch).length }}</div>
+                        <div class="text-xs text-gray-400">فيديو</div>
                     </div>
-
-                    <div class="stats-grid">
-                        <div class="stat-box">
-                            <div class="stat-icon"><i class="fas fa-video"></i></div>
-                            <div class="stat-num">{{ countV(ch) }}</div>
-                            <div class="stat-text">فيديو</div>
-                        </div>
-                        <div class="stat-box">
-                            <div class="stat-icon"><i class="fas fa-file-alt"></i></div>
-                            <div class="stat-num">0</div>
-                            <div class="stat-text">ملف</div>
-                        </div>
-                        <div class="stat-box">
-                            <div class="stat-icon"><i class="fas fa-pen-fancy"></i></div>
-                            <div class="stat-num">0</div>
-                            <div class="stat-text">امتحان</div>
-                        </div>
+                    <div class="stat-box">
+                        <i class="fas fa-file-alt stat-icon"></i>
+                        <div class="font-bold">0</div>
+                        <div class="text-xs text-gray-400">ملف</div>
                     </div>
-
-                    <button @click="open(uIdx, cIdx)" class="btn-content">
-                        محتوى المحاضرة <i class="fas fa-arrow-left"></i>
-                    </button>
-
+                    <div class="stat-box">
+                        <i class="fas fa-pen-fancy stat-icon"></i>
+                        <div class="font-bold">0</div>
+                        <div class="text-xs text-gray-400">امتحان</div>
+                    </div>
                 </div>
+
+                <button @click="openLecture(ch)" class="btn-content">
+                    محتوى المحاضرة <i class="fas fa-arrow-left"></i>
+                </button>
             </div>
         </div>
     </div>
 
     <script>
         const { createApp, ref, onMounted } = Vue;
-        const URLS = { 'علمي علوم': "https://plus-teal.vercel.app/organized_output.json", 'أدبي': "https://plus-teal.vercel.app/organized_output-a.json", 'علمي رياضة': "https://platform-sigma-seven.vercel.app/organized_output-e.json", 'أزهر': "https://plus-teal.vercel.app/organized_output.json" };
-
         createApp({
             setup() {
-                const units = ref([]);
+                const allLectures = ref([]);
                 const loading = ref(true);
                 const teacherName = ref('');
                 const params = new URLSearchParams(window.location.search);
-                
-                // دالة الفتح: تبعت رقم الوحدة ورقم الدرس لصفحة الفيديوهات
-                const open = (u, c) => window.location.href = `parts.html?yid=${params.get('yid')}&sid=${params.get('sid')}&tid=${params.get('tid')}&uid=${u}&cid=${c}`;
-                
-                // دالة عد الفيديوهات
-                const countV = (ch) => { let c=0; if(ch.videos) c+=ch.videos.length; if(ch.lectures) ch.lectures.forEach(l=>{if(l.videos)c+=l.videos.length}); return c; };
+
+                const getVideos = (ch) => {
+                    let vids = [];
+                    if(ch.videos) vids = [...ch.videos];
+                    if(ch.lectures) ch.lectures.forEach(l => { if(l.videos) vids = [...vids, ...l.videos] });
+                    return vids;
+                };
+
+                const openLecture = (ch) => {
+                    localStorage.setItem('selectedLectureVids', JSON.stringify(getVideos(ch)));
+                    localStorage.setItem('selectedLectureTitle', ch.chapter_name || ch.name);
+                    window.location.href = 'parts.html';
+                };
 
                 onMounted(async () => {
                     const code = checkAuth();
                     const db = firebase.database();
                     const snap = await db.ref('approvedStudents/'+code).once('value');
                     const section = snap.val().section;
-                    
-                    const res = await fetch(URLS[section]);
+                    const res = await fetch("https://plus-teal.vercel.app/organized_output.json");
                     const data = await res.json();
+                    
                     const year = data.find(y => y.id == params.get('yid')) || data[0];
                     const sub = year.subjects.find(s => s.id == params.get('sid'));
                     const teacher = sub.teachers.find(t => t.id == params.get('tid'));
                     
                     teacherName.value = teacher.name;
-                    units.value = teacher.units || [{unit_name: "جميع المحاضرات", chapters: teacher.chapters}];
+                    
+                    // استخراج كافة الفصول/المحاضرات بشكل مسطح لعرضها في كروت منفصلة
+                    let tempLectures = [];
+                    if(teacher.units) {
+                        teacher.units.forEach(u => { if(u.chapters) tempLectures.push(...u.chapters); });
+                    } else if(teacher.chapters) {
+                        tempLectures = teacher.chapters;
+                    }
+                    allLectures.value = tempLectures;
                     loading.value = false;
                 });
-                return { units, teacherName, loading, open, countV };
+                return { allLectures, loading, teacherName, getVideos, openLecture };
             }
         }).mount('#app');
     </script>
 </body>
-</html>
+    </html>
+    
