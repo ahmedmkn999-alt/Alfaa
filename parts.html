@@ -9,9 +9,8 @@
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
     <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
     <script src="auth.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
     <style>
         body { background: #000; color: white; font-family: 'Tajawal', sans-serif; padding-bottom: 50px; }
         .bg-glow { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; background: radial-gradient(circle at 50% 10%, #1e1b4b, #000 60%); }
@@ -48,10 +47,10 @@
 
     <div id="app">
         <div class="header-sticky flex items-center gap-4">
-            <button onclick="history.back()" class="w-10 h-10 bg-white/10 rounded-full text-white flex items-center justify-center">➜</button>
-            <div style="width: 80%;">
+            <button onclick="history.back()" class="w-10 h-10 bg-white/10 rounded-full text-white flex items-center justify-center hover:bg-white/20">➜</button>
+            <div style="max-width: 80%;">
                 <h1 class="text-lg font-bold text-indigo-300 truncate">{{ title }}</h1>
-                <p class="text-xs text-gray-400">قائمة التشغيل</p>
+                <p class="text-xs text-gray-400">قائمة فيديوهات المحاضرة</p>
             </div>
         </div>
 
@@ -62,7 +61,7 @@
                     
                     <div class="flex-1">
                         <div class="vid-title group-hover:text-white">{{ v.video_name || v.title || v.name }}</div>
-                        <div class="vid-meta"><i class="fas fa-clock text-xs"></i> فيديو مسجل</div>
+                        <div class="vid-meta"><i class="fas fa-play-circle text-xs"></i> فيديو مسجل</div>
                     </div>
                     
                     <div class="play-icon-box"><i class="fas fa-play"></i></div>
@@ -70,60 +69,42 @@
             </div>
             
             <div v-else class="text-center mt-20 text-gray-500">
-                <i class="fas fa-video-slash text-4xl mb-2"></i>
-                <p>لا يوجد محتوى هنا</p>
+                <i class="fas fa-video-slash text-4xl mb-4"></i>
+                <p>لا يوجد فيديوهات متاحة لهذه المحاضرة حالياً</p>
             </div>
         </div>
     </div>
 
     <script>
         const { createApp, ref, onMounted } = Vue;
-        const URLS = { 'علمي علوم': "https://plus-teal.vercel.app/organized_output.json", 'أدبي': "https://plus-teal.vercel.app/organized_output-a.json", 'علمي رياضة': "https://platform-sigma-seven.vercel.app/organized_output-e.json", 'أزهر': "https://plus-teal.vercel.app/organized_output.json" };
 
         createApp({
             setup() {
                 const videos = ref([]);
                 const title = ref('جاري التحميل...');
-                const params = new URLSearchParams(window.location.search);
 
+                // دالة تشغيل الفيديو
                 const play = (v) => {
                     localStorage.setItem('currentVideo', JSON.stringify(v));
                     window.location.href = 'player.html';
                 };
 
-                onMounted(async () => {
-                    const code = checkAuth();
-                    const db = firebase.database();
-                    const snap = await db.ref('approvedStudents/'+code).once('value');
-                    const section = snap.val().section;
+                onMounted(() => {
+                    // التحقق من تسجيل الدخول
+                    checkAuth();
 
-                    const res = await fetch(URLS[section]);
-                    const data = await res.json();
-                    
-                    const year = data.find(y => y.id == params.get('yid')) || data[0];
-                    const sub = year.subjects.find(s => s.id == params.get('sid'));
-                    const teacher = sub.teachers.find(t => t.id == params.get('tid'));
-                    
-                    // 🛑 منطق الفصل الصارم:
-                    let ch;
-                    const uid = params.get('uid');
-                    const cid = params.get('cid');
+                    // جلب البيانات التي تم تخزينها من صفحة lectures.html
+                    const storedVids = localStorage.getItem('selectedLectureVids');
+                    const storedTitle = localStorage.getItem('selectedLectureTitle');
 
-                    if (teacher.units && teacher.units.length > 0) {
-                        // نظام جديد (وحدات)
-                        ch = teacher.units[uid].chapters[cid];
+                    if (storedVids) {
+                        videos.value = JSON.parse(storedVids);
+                        title.value = storedTitle || 'المحتوى التعليمي';
                     } else {
-                        // نظام قديم (قائمة فصول)
-                        ch = teacher.chapters[cid];
+                        title.value = 'خطأ في جلب البيانات';
                     }
-
-                    title.value = ch.chapter_name || ch.name;
-                    
-                    let vids = [];
-                    if(ch.videos) vids = [...vids, ...ch.videos];
-                    if(ch.lectures) ch.lectures.forEach(l => { if(l.videos) vids = [...vids, ...l.videos] });
-                    videos.value = vids;
                 });
+
                 return { videos, title, play };
             }
         }).mount('#app');
