@@ -3,158 +3,105 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>حالة الاشتراك | FULL MARK</title>
+    <title>حالة الاشتراك</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
     <script src="auth.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        body { 
-            background: #020617; color: white; font-family: 'Tajawal', sans-serif; 
-            display: flex; flex-direction: column; align-items: center; justify-content: center; 
-            min-height: 100vh; overflow: hidden; margin: 0;
-        }
+        body { background: #000; color: white; font-family: 'Tajawal', sans-serif; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; overflow: hidden; }
         
-        .bg-glow {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1;
-            background: radial-gradient(circle at 50% 50%, #1e1b4b, #020617 80%);
-        }
-
-        /* كارت الاشتراك الزجاجي */
+        /* تأثير التوهج */
         .glow-box {
-            background: rgba(15, 23, 42, 0.7);
-            backdrop-filter: blur(20px);
-            border: 1px solid rgba(99, 102, 241, 0.3);
-            box-shadow: 0 25px 50px -12px rgba(99, 102, 241, 0.2);
-            border-radius: 40px;
+            box-shadow: 0 0 50px rgba(59, 130, 246, 0.3);
+            border: 2px solid #3b82f6;
+            background: rgba(10, 20, 40, 0.9);
         }
         
-        .crown-icon { 
-            font-size: 3.5rem; 
-            background: linear-gradient(135deg, #fbbf24, #d946ef);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            filter: drop-shadow(0 0 15px rgba(251, 191, 36, 0.4));
-            animation: float 3s ease-in-out infinite; 
-        }
-        
-        @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-15px); } }
+        .crown-icon { font-size: 3rem; color: #fbbf24; filter: drop-shadow(0 0 10px #fbbf24); animation: float 3s ease-in-out infinite; }
+        @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
 
         .digit-box {
-            background: rgba(2, 6, 23, 0.6); 
-            border: 1px solid rgba(99, 102, 241, 0.2); 
-            padding: 15px; border-radius: 20px;
-            min-width: 80px; text-align: center;
+            background: #111; border: 1px solid #333; padding: 10px; border-radius: 10px;
+            min-width: 60px; text-align: center;
         }
-        .digit-val { 
-            font-size: 2.2rem; font-weight: 900; 
-            color: #6366f1; text-shadow: 0 0 15px rgba(99, 102, 241, 0.5); 
-            font-family: 'Outfit', sans-serif; 
-        }
-        .digit-label { color: #64748b; font-size: 0.7rem; margin-top: 5px; font-weight: bold; }
+        .digit-val { font-size: 2rem; font-weight: bold; color: #3b82f6; text-shadow: 0 0 10px #3b82f6; font-family: monospace; }
+        .digit-label { color: #aaa; font-size: 0.8rem; margin-top: 5px; }
 
         .active-badge {
-            background: rgba(34, 197, 94, 0.1); color: #4ade80; border: 1px solid rgba(34, 197, 94, 0.3);
-            padding: 6px 18px; border-radius: 50px; font-size: 0.8rem; font-weight: bold; 
-            display: inline-flex; align-items: center; gap: 8px;
+            background: rgba(34, 197, 94, 0.2); color: #4ade80; border: 1px solid #4ade80;
+            padding: 5px 15px; border-radius: 50px; font-weight: bold; display: inline-flex; align-items: center; gap: 5px;
         }
         
         .code-display {
-            font-family: 'Outfit', sans-serif; letter-spacing: 4px; font-size: 1.8rem;
-            background: linear-gradient(to right, #6366f1, #d946ef);
-            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-            font-weight: 900; margin-top: 5px;
-        }
-
-        .btn-return {
-            background: linear-gradient(135deg, #6366f1, #a855f7);
-            box-shadow: 0 10px 20px rgba(99, 102, 241, 0.3);
-            transition: 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-        }
-        .btn-return:hover { transform: scale(1.05); box-shadow: 0 15px 30px rgba(99, 102, 241, 0.4); }
-
-        .branding-text {
-            margin-top: 40px; font-size: 0.7rem; letter-spacing: 4px; color: #475569; font-weight: 900;
+            font-family: monospace; letter-spacing: 5px; font-size: 2rem;
+            color: #fbbf24; text-shadow: 0 0 15px #fbbf24; font-weight: bold; margin-top: 10px;
         }
     </style>
 </head>
 <body>
-    <div class="bg-glow"></div>
 
     <div class="w-full max-w-md p-6">
         
         <div class="text-center mb-8">
             <i class="fas fa-crown crown-icon mb-4"></i>
-            <h1 class="text-3xl font-black tracking-tight text-white mb-1">
+            <h1 class="text-3xl font-bold uppercase tracking-widest text-white mb-2" style="text-shadow: 0 0 20px rgba(255,255,255,0.5);">
                 FULL MARK STUDENT
             </h1>
-            <p class="text-xs text-gray-500 tracking-[0.3em] uppercase mb-4">Subscription Status</p>
-            <h2 id="studentNameDisplay" class="text-2xl text-transparent bg-clip-text bg-gradient-to-r from-indigo-300 to-white font-bold">...</h2>
+            <h2 id="studentNameDisplay" class="text-xl text-blue-400 font-bold">...</h2>
         </div>
 
-        <div class="glow-box p-8 text-center relative overflow-hidden">
-            <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-indigo-500 via-fuchsia-500 to-indigo-500"></div>
+        <div class="glow-box rounded-3xl p-8 text-center relative overflow-hidden">
+            <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-blue-500 via-yellow-400 to-blue-500"></div>
 
-            <div class="flex justify-between items-center mb-10">
-                <span class="active-badge"><i class="fas fa-check-circle animate-pulse"></i> حساب نشط</span>
-                <span class="text-gray-500 text-[10px] font-bold uppercase">Plan: Premium</span>
+            <div class="flex justify-between items-center mb-8">
+                <span class="active-badge"><i class="fas fa-check-circle"></i> نشط</span>
+                <span class="text-gray-400 text-sm">الحالة: بريميوم</span>
             </div>
 
-            <p class="text-sm text-gray-400 mb-6 font-bold">الوقت المتبقي لانتهاء التفعيل</p>
+            <div class="text-2xl font-bold text-white mb-6">الوقت المتبقي</div>
 
-            <div class="flex justify-center gap-3 mb-10">
-                <div class="digit-box"><div class="digit-val" id="dDays">00</div><div class="digit-label">يوم</div></div>
-                <div class="text-2xl text-indigo-900 self-center font-black">:</div>
-                <div class="digit-box"><div class="digit-val" id="dHours">00</div><div class="digit-label">ساعة</div></div>
-                <div class="text-2xl text-indigo-900 self-center font-black">:</div>
-                <div class="digit-box"><div class="digit-val" id="dMins">00</div><div class="digit-label">دقيقة</div></div>
+            <div class="flex justify-center gap-3 mb-8">
+                <div class="digit-box"><div class="digit-val" id="dDays">00</div><div class="digit-label">أيام</div></div>
+                <div class="text-2xl text-gray-600 self-center">:</div>
+                <div class="digit-box"><div class="digit-val" id="dHours">00</div><div class="digit-label">ساعات</div></div>
+                <div class="text-2xl text-gray-600 self-center">:</div>
+                <div class="digit-box"><div class="digit-val" id="dMins">00</div><div class="digit-label">دقائق</div></div>
             </div>
 
-            <a href="subjects.html" class="btn-return block w-full text-white font-black py-5 rounded-2xl transition-all flex items-center justify-center gap-3">
-                <i class="fas fa-th-large"></i> دخول منصة المواد
+            <a href="subjects.html" class="block w-full bg-gradient-to-r from-blue-600 to-blue-800 hover:from-blue-500 hover:to-blue-700 text-white font-bold py-4 rounded-xl transition shadow-lg transform hover:scale-105">
+                <i class="fas fa-door-open ml-2"></i> العودة إلى المواد
             </a>
         </div>
 
-        <div class="text-center mt-10">
-            <p class="text-[10px] text-gray-500 uppercase font-black tracking-widest">كود الطالب الحالي</p>
+        <div class="text-center mt-8">
+            <p class="text-gray-500 text-sm">كود التفعيل الخاص بك</p>
             <div id="codeShow" class="code-display">------</div>
-        </div>
-
-        <div class="branding-text text-center">
-            ELGIZAWY • DEVELOPMENT
         </div>
 
     </div>
 
     <script>
         const db = firebase.database();
-        // تم تعديل المفتاح ليناسب ما تم تخزينه في صفحة تسجيل الدخول
-        const code = localStorage.getItem('alpha_user_code') || localStorage.getItem('activeCode');
-        document.getElementById('codeShow').innerText = code || '---';
+        const code = localStorage.getItem('activeCode');
+        document.getElementById('codeShow').innerText = code;
 
-        if(code) {
-            db.ref('approvedStudents/' + code).on('value', snap => {
-                const data = snap.val();
-                if(data) {
-                    document.getElementById('studentNameDisplay').innerText = data.studentName;
-                    startTimer(data.expiryDate || data.expiry);
-                }
-            });
-        }
+        db.ref('approvedStudents/' + code).once('value').then(snap => {
+            const data = snap.val();
+            if(data) {
+                document.getElementById('studentNameDisplay').innerText = data.studentName;
+                startTimer(data.expiry);
+            }
+        });
 
         function startTimer(expiry) {
-            if(!expiry) return;
-            
-            const timerFunc = () => {
+            setInterval(() => {
                 const now = new Date().getTime();
                 const distance = expiry - now;
 
                 if (distance < 0) {
                     document.getElementById('dDays').innerText = "00";
-                    document.getElementById('dHours').innerText = "00";
-                    document.getElementById('dMins').innerText = "00";
                     return;
                 }
 
@@ -165,10 +112,7 @@
                 document.getElementById('dDays').innerText = days < 10 ? "0"+days : days;
                 document.getElementById('dHours').innerText = hours < 10 ? "0"+hours : hours;
                 document.getElementById('dMins').innerText = minutes < 10 ? "0"+minutes : minutes;
-            };
-
-            timerFunc();
-            setInterval(timerFunc, 1000 * 60); // تحديث كل دقيقة للحفاظ على الأداء
+            }, 1000);
         }
     </script>
 </body>
